@@ -1,0 +1,14 @@
+﻿{
+  "Group": "Custom Wallet",
+  "FriendlyName": "Custom wallet for customers.",
+  "SystemName": "Customer.CustomWallet",
+  "Version": "0.0.1-alpha",
+  "SupportedVersions": [
+    "4.40",
+    "4.50"
+  ],
+  "Author": "ferasat team",
+  "DisplayOrder": 1,
+  "FileName": "Nop.Plugin.Customer.CustomWallet.dll",
+  "Description": "This plugin allows customers to have custom wallet"
+}

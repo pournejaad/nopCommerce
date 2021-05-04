@@ -1,10 +1,14 @@
 ﻿{
-  "Group": "Discount requirements",
+  "Group": "Discount requirement",
   "FriendlyName": "Must be assigned to customer role",
-  "SystemName": "DiscountRequirement.MustBeAssignedToCustomerRole",
-  "Version": "1.36",
-  "SupportedVersions": [ "4.40","4.50"  ],
-  "Author": "nopCommerce team",
+  "SystemName": "DiscountRequirement.CustomerClubRole",
+  "Version": "0.0.1-beta",
+  "SupportedVersions": [
+    "4.30",
+    "4.40",
+    "4.50"
+  ],
+  "Author": "Ferasat System CO",
   "DisplayOrder": 1,
   "FileName": "Nop.Plugin.DiscountRules.CustomerRoles.dll",
   "Description": "This plugin allows you to configure discounts for certain customer groups (roles)"
