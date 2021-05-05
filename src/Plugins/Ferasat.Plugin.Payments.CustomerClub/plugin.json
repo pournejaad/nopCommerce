@@ -1,0 +1,14 @@
+{
+  "Group": "Payment Method",
+  "FriendlyName": "Customer Club Credit Payment",
+  "SystemName": "Payments.CustomClub",
+  "Version": "0.0.1-alpha",
+  "SupportedVersions": [
+    "4.40",
+    "4.50"
+  ],
+  "Author": "ferasat team",
+  "DisplayOrder": 1,
+  "FileName": "Ferasat.Plugin.Payments.CustomerClub.dll",
+  "Description": "This plugin allows customers to pay with their customer club credit"
+}

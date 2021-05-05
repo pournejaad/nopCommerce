@@ -9,6 +9,6 @@
   ],
   "Author": "ferasat team",
   "DisplayOrder": 1,
-  "FileName": "Nop.Plugin.Customer.CustomWallet.dll",
+  "FileName": "Ferasat.Plugin.Customer.CustomWallet.dll",
   "Description": "This plugin allows customers to have custom wallet"
 }
