@@ -1316,6 +1316,22 @@ namespace Nop.Web.Controllers
         }
 
         [HttpPost, ActionName("Cart")]
+        [FormValueRequired("applypartialpayment")]
+        public virtual async Task<IActionResult> ApplyPartial(string amount, IFormCollection form)
+        {
+            var cart = await _shoppingCartService.GetShoppingCartAsync(await _workContext.GetCurrentCustomerAsync(),
+                ShoppingCartType.ShoppingCart, (await _storeContext.GetCurrentStoreAsync()).Id);
+            await ParseAndSaveCheckoutAttributesAsync(cart, form);
+            var model = new ShoppingCartModel();
+            model = await _shoppingCartModelFactory.PrepareShoppingCartModelAsync(model, cart);
+            var p = model.Items.First().UnitPrice;
+            var uu = decimal.Parse(p) - decimal.Parse(amount);
+            model.Items.First().UnitPrice = uu.ToString();
+            return View(model);
+
+        }
+        
+        [HttpPost, ActionName("Cart")]
         [FormValueRequired("applydiscountcouponcode")]
         public virtual async Task<IActionResult> ApplyDiscountCoupon(string discountcouponcode, IFormCollection form)
         {

@@ -246,6 +246,7 @@
                         <div class="deals">
                             @await Html.PartialAsync("_DiscountBox", Model.DiscountBox)
                             @await Html.PartialAsync("_GiftCardBox", Model.GiftCardBox)
+                            @await Html.PartialAsync("_PartialPaymentBox",Model.PartialPayWithWalletBox);
                             @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.OrderSummaryContentDeals })
                         </div>
                     </div>

@@ -19,6 +19,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Libraries\Leo.Core\Leo.Core.csproj" />
     <ProjectReference Include="..\..\Libraries\Nop.Core\Nop.Core.csproj" />
     <ProjectReference Include="..\..\Libraries\Nop.Data\Nop.Data.csproj" />
     <ProjectReference Include="..\..\Libraries\Nop.Services\Nop.Services.csproj" />

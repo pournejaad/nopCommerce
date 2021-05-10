@@ -94,16 +94,18 @@ namespace Nop.Services.Discounts
                 {
                     //or try to get validation result for the requirement
                     var requirementRulePlugin = await _discountPluginManager
-                        .LoadPluginBySystemNameAsync(requirement.DiscountRequirementRuleSystemName, customer, (await _storeContext.GetCurrentStoreAsync()).Id);
+                        .LoadPluginBySystemNameAsync(requirement.DiscountRequirementRuleSystemName, customer,
+                            (await _storeContext.GetCurrentStoreAsync()).Id);
                     if (requirementRulePlugin == null)
                         continue;
 
-                    var ruleResult = await requirementRulePlugin.CheckRequirementAsync(new DiscountRequirementValidationRequest
-                    {
-                        DiscountRequirementId = requirement.Id,
-                        Customer = customer,
-                        Store = await _storeContext.GetCurrentStoreAsync()
-                    });
+                    var ruleResult = await requirementRulePlugin.CheckRequirementAsync(
+                        new DiscountRequirementValidationRequest
+                        {
+                            DiscountRequirementId = requirement.Id,
+                            Customer = customer,
+                            Store = await _storeContext.GetCurrentStoreAsync()
+                        });
 
                     //add validation error
                     if (!ruleResult.IsValid)
@@ -183,26 +185,26 @@ namespace Nop.Services.Discounts
             //we do it because we know that this method is invoked several times per HTTP request with distinct "discountType" parameter
             //that's why let's access the database only once
             var discounts = (await _discountRepository.GetAllAsync(query =>
-            {
-                if (!showHidden)
-                    query = query.Where(discount =>
-                        (!discount.StartDateUtc.HasValue || discount.StartDateUtc <= DateTime.UtcNow) &&
-                        (!discount.EndDateUtc.HasValue || discount.EndDateUtc >= DateTime.UtcNow));
+                {
+                    if (!showHidden)
+                        query = query.Where(discount =>
+                            (!discount.StartDateUtc.HasValue || discount.StartDateUtc <= DateTime.UtcNow) &&
+                            (!discount.EndDateUtc.HasValue || discount.EndDateUtc >= DateTime.UtcNow));
 
-                //filter by coupon code
-                if (!string.IsNullOrEmpty(couponCode))
-                    query = query.Where(discount => discount.CouponCode == couponCode);
+                    //filter by coupon code
+                    if (!string.IsNullOrEmpty(couponCode))
+                        query = query.Where(discount => discount.CouponCode == couponCode);
 
-                //filter by name
-                if (!string.IsNullOrEmpty(discountName))
-                    query = query.Where(discount => discount.Name.Contains(discountName));
+                    //filter by name
+                    if (!string.IsNullOrEmpty(discountName))
+                        query = query.Where(discount => discount.Name.Contains(discountName));
 
-                query = query.OrderBy(discount => discount.Name).ThenBy(discount => discount.Id);
+                    query = query.OrderBy(discount => discount.Name).ThenBy(discount => discount.Id);
 
-                return query;
-            }, cache => cache.PrepareKeyForDefaultCache(NopDiscountDefaults.DiscountAllCacheKey, 
-                showHidden, couponCode ?? string.Empty, discountName ?? string.Empty)))
-            .AsQueryable();
+                    return query;
+                }, cache => cache.PrepareKeyForDefaultCache(NopDiscountDefaults.DiscountAllCacheKey,
+                    showHidden, couponCode ?? string.Empty, discountName ?? string.Empty)))
+                .AsQueryable();
 
             //we know that this method is usually invoked multiple times
             //that's why we filter discounts by type and dates on the application layer
@@ -229,13 +231,15 @@ namespace Nop.Services.Discounts
         /// A task that represents the asynchronous operation
         /// The task result contains the list of discounts
         /// </returns>
-        public virtual async Task<IList<Discount>> GetAppliedDiscountsAsync<T>(IDiscountSupported<T> entity) where T : DiscountMapping
+        public virtual async Task<IList<Discount>> GetAppliedDiscountsAsync<T>(IDiscountSupported<T> entity)
+            where T : DiscountMapping
         {
             var discountMappingRepository = EngineContext.Current.Resolve<IRepository<T>>();
 
-            var cacheKey = _staticCacheManager.PrepareKeyForShortTermCache(NopDiscountDefaults.AppliedDiscountsCacheKey, entity.GetType().Name, entity);
+            var cacheKey = _staticCacheManager.PrepareKeyForShortTermCache(NopDiscountDefaults.AppliedDiscountsCacheKey,
+                entity.GetType().Name, entity);
 
-            var appliedDiscounts= await _staticCacheManager.GetAsync(cacheKey,
+            var appliedDiscounts = await _staticCacheManager.GetAsync(cacheKey,
                 async () =>
                 {
                     return await (from d in _discountRepository.Table
@@ -270,7 +274,7 @@ namespace Nop.Services.Discounts
         #endregion
 
         #region Discounts (caching)
-        
+
         /// <summary>
         /// Gets the discount amount for the specified value
         /// </summary>
@@ -331,6 +335,7 @@ namespace Nop.Services.Discounts
                 result.Clear();
                 result.Add(discount);
             }
+
             //now let's check cumulative discounts
             //right now we calculate discount values based on the original amount value
             //please keep it in mind if you're going to use discounts with "percentage"
@@ -380,7 +385,8 @@ namespace Nop.Services.Discounts
         /// A task that represents the asynchronous operation
         /// The task result contains the requirements
         /// </returns>
-        public virtual async Task<IList<DiscountRequirement>> GetAllDiscountRequirementsAsync(int discountId = 0, bool topLevelOnly = false)
+        public virtual async Task<IList<DiscountRequirement>> GetAllDiscountRequirementsAsync(int discountId = 0,
+            bool topLevelOnly = false)
         {
             return await _discountRequirementRepository.GetAllAsync(query =>
             {
@@ -413,7 +419,8 @@ namespace Nop.Services.Discounts
         /// </summary>
         /// <param name="discountRequirement">Parent discount requirement</param>
         /// <returns>A task that represents the asynchronous operation</returns>
-        public virtual async Task<IList<DiscountRequirement>> GetDiscountRequirementsByParentAsync(DiscountRequirement discountRequirement)
+        public virtual async Task<IList<DiscountRequirement>> GetDiscountRequirementsByParentAsync(
+            DiscountRequirement discountRequirement)
         {
             if (discountRequirement is null)
                 throw new ArgumentNullException(nameof(discountRequirement));
@@ -429,12 +436,15 @@ namespace Nop.Services.Discounts
         /// <param name="discountRequirement">Discount requirement</param>
         /// <param name="recursive">A value indicating whether to recursively delete child requirements</param>
         /// <returns>A task that represents the asynchronous operation</returns>
-        public virtual async Task DeleteDiscountRequirementAsync(DiscountRequirement discountRequirement, bool recursive = false)
+        public virtual async Task DeleteDiscountRequirementAsync(DiscountRequirement discountRequirement,
+            bool recursive = false)
         {
             if (discountRequirement == null)
                 throw new ArgumentNullException(nameof(discountRequirement));
 
-            if (recursive && await GetDiscountRequirementsByParentAsync(discountRequirement) is IList<DiscountRequirement> children && children.Any())
+            if (recursive &&
+                await GetDiscountRequirementsByParentAsync(discountRequirement) is IList<DiscountRequirement>
+                    children && children.Any())
                 foreach (var child in children)
                     await DeleteDiscountRequirementAsync(child, true);
 
@@ -464,7 +474,7 @@ namespace Nop.Services.Discounts
         #endregion
 
         #region Validation
-        
+
         /// <summary>
         /// Validate discount
         /// </summary>
@@ -483,7 +493,7 @@ namespace Nop.Services.Discounts
                 throw new ArgumentNullException(nameof(customer));
 
             var couponCodesToValidate = await _customerService.ParseAppliedDiscountCouponCodesAsync(customer);
-            
+
             return await ValidateDiscountAsync(discount, customer, couponCodesToValidate);
         }
 
@@ -497,7 +507,8 @@ namespace Nop.Services.Discounts
         /// A task that represents the asynchronous operation
         /// The task result contains the discount validation result
         /// </returns>
-        public virtual async Task<DiscountValidationResult> ValidateDiscountAsync(Discount discount, Customer customer, string[] couponCodesToValidate)
+        public virtual async Task<DiscountValidationResult> ValidateDiscountAsync(Discount discount, Customer customer,
+            string[] couponCodesToValidate)
         {
             if (discount == null)
                 throw new ArgumentNullException(nameof(discount));
@@ -517,7 +528,8 @@ namespace Nop.Services.Discounts
                 if (couponCodesToValidate == null)
                     return result;
 
-                if (!couponCodesToValidate.Any(x => x.Equals(discount.CouponCode, StringComparison.InvariantCultureIgnoreCase)))
+                if (!couponCodesToValidate.Any(x =>
+                    x.Equals(discount.CouponCode, StringComparison.InvariantCultureIgnoreCase)))
                     return result;
             }
 
@@ -532,10 +544,14 @@ namespace Nop.Services.Discounts
                     ShoppingCartType.ShoppingCart, storeId: (await _storeContext.GetCurrentStoreAsync()).Id);
 
                 var cartProductIds = cart.Select(ci => ci.ProductId).ToArray();
-                
+
                 if (await _productService.HasAnyGiftCardProductAsync(cartProductIds))
                 {
-                    result.Errors = new List<string> {await _localizationService.GetResourceAsync("ShoppingCart.Discount.CannotBeUsedWithGiftCards") };
+                    result.Errors = new List<string>
+                    {
+                        await _localizationService.GetResourceAsync(
+                            "ShoppingCart.Discount.CannotBeUsedWithGiftCards")
+                    };
                     return result;
                 }
             }
@@ -547,7 +563,10 @@ namespace Nop.Services.Discounts
                 var startDate = DateTime.SpecifyKind(discount.StartDateUtc.Value, DateTimeKind.Utc);
                 if (startDate.CompareTo(now) > 0)
                 {
-                    result.Errors = new List<string> {await _localizationService.GetResourceAsync("ShoppingCart.Discount.NotStartedYet") };
+                    result.Errors = new List<string>
+                    {
+                        await _localizationService.GetResourceAsync("ShoppingCart.Discount.NotStartedYet")
+                    };
                     return result;
                 }
             }
@@ -557,7 +576,10 @@ namespace Nop.Services.Discounts
                 var endDate = DateTime.SpecifyKind(discount.EndDateUtc.Value, DateTimeKind.Utc);
                 if (endDate.CompareTo(now) < 0)
                 {
-                    result.Errors = new List<string> {await _localizationService.GetResourceAsync("ShoppingCart.Discount.Expired") };
+                    result.Errors = new List<string>
+                    {
+                        await _localizationService.GetResourceAsync("ShoppingCart.Discount.Expired")
+                    };
                     return result;
                 }
             }
@@ -566,26 +588,31 @@ namespace Nop.Services.Discounts
             switch (discount.DiscountLimitation)
             {
                 case DiscountLimitationType.NTimesOnly:
-                    {
-                        var usedTimes = (await GetAllDiscountUsageHistoryAsync(discount.Id, null, null, 0, 1)).TotalCount;
-                        if (usedTimes >= discount.LimitationTimes)
-                            return result;
-                    }
+                {
+                    var usedTimes = (await GetAllDiscountUsageHistoryAsync(discount.Id, null, null, 0, 1)).TotalCount;
+                    if (usedTimes >= discount.LimitationTimes)
+                        return result;
+                }
 
                     break;
                 case DiscountLimitationType.NTimesPerCustomer:
+                {
+                    if (await _customerService.IsRegisteredAsync(customer))
                     {
-                        if (await _customerService.IsRegisteredAsync(customer))
+                        var usedTimes = (await GetAllDiscountUsageHistoryAsync(discount.Id, customer.Id, null, 0, 1))
+                            .TotalCount;
+                        if (usedTimes >= discount.LimitationTimes)
                         {
-                            var usedTimes = (await GetAllDiscountUsageHistoryAsync(discount.Id, customer.Id, null, 0, 1)).TotalCount;
-                            if (usedTimes >= discount.LimitationTimes)
+                            result.Errors = new List<string>
                             {
-                                result.Errors = new List<string> {await _localizationService.GetResourceAsync("ShoppingCart.Discount.CannotBeUsedAnymore") };
-                                
-                                return result;
-                            }
+                                await _localizationService.GetResourceAsync(
+                                    "ShoppingCart.Discount.CannotBeUsedAnymore")
+                            };
+
+                            return result;
                         }
                     }
+                }
 
                     break;
                 case DiscountLimitationType.Unlimited:
@@ -594,13 +621,17 @@ namespace Nop.Services.Discounts
             }
 
             //discount requirements
-            var key = _staticCacheManager.PrepareKeyForDefaultCache(NopDiscountDefaults.DiscountRequirementsByDiscountCacheKey, discount);
+            var key = _staticCacheManager.PrepareKeyForDefaultCache(
+                NopDiscountDefaults.DiscountRequirementsByDiscountCacheKey, discount);
 
-            var requirements = await _staticCacheManager.GetAsync(key, async () => await GetAllDiscountRequirementsAsync(discount.Id, true));
+            var requirements = await _staticCacheManager.GetAsync(key,
+                async () => await GetAllDiscountRequirementsAsync(discount.Id, true));
 
             //get top-level group
             var topLevelGroup = requirements.FirstOrDefault();
-            if (topLevelGroup == null || (topLevelGroup.IsGroup && !(await GetDiscountRequirementsByParentAsync(topLevelGroup)).Any()) || !topLevelGroup.InteractionType.HasValue)
+            if (topLevelGroup == null ||
+                (topLevelGroup.IsGroup && !(await GetDiscountRequirementsByParentAsync(topLevelGroup)).Any()) ||
+                !topLevelGroup.InteractionType.HasValue)
             {
                 //there are no requirements, so discount is valid
                 result.IsValid = true;
@@ -611,7 +642,8 @@ namespace Nop.Services.Discounts
             //requirements exist, let's check them
             var errors = new List<string>();
 
-            result.IsValid = await GetValidationResultAsync(requirements, topLevelGroup.InteractionType.Value, customer, errors);
+            result.IsValid =
+                await GetValidationResultAsync(requirements, topLevelGroup.InteractionType.Value, customer, errors);
 
             //set errors if result is not valid
             if (!result.IsValid)
@@ -649,7 +681,8 @@ namespace Nop.Services.Discounts
         /// A task that represents the asynchronous operation
         /// The task result contains the discount usage history records
         /// </returns>
-        public virtual async Task<IPagedList<DiscountUsageHistory>> GetAllDiscountUsageHistoryAsync(int? discountId = null,
+        public virtual async Task<IPagedList<DiscountUsageHistory>> GetAllDiscountUsageHistoryAsync(
+            int? discountId = null,
             int? customerId = null, int? orderId = null, int pageIndex = 0, int pageSize = int.MaxValue)
         {
             return await _discountUsageHistoryRepository.GetAllPagedAsync(query =>

@@ -1,0 +1,19 @@
+﻿@model ShoppingCartModel.PartialPayWithWalletBoxModel
+
+<div class="coupon-box">
+    <div class="title">
+        <strong>Pay partially</strong>
+    </div>
+    <div class="coupon-code">
+        <input name="amounttopay" id="amounttopay" type="text" >
+        <button type="submit" name="applypartialpayment" id="applypartialpayment" class="btn">confirm</button>
+    </div>
+    
+</div>
+<script asp-location="Footer">
+$(document).ready(function (){
+    $('#applypartialpayment').click(function(){
+        $('#applypartialpayment').trigger('click');
+    })    
+});
+</script>

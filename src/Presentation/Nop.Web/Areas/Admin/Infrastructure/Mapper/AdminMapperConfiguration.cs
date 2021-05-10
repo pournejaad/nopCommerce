@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Leo.Core.Payments;
 using Nop.Core.Configuration;
 using Nop.Core.Domain.Affiliates;
 using Nop.Core.Domain.Blogs;
@@ -50,6 +51,7 @@ using Nop.Web.Areas.Admin.Models.Logging;
 using Nop.Web.Areas.Admin.Models.Messages;
 using Nop.Web.Areas.Admin.Models.News;
 using Nop.Web.Areas.Admin.Models.Orders;
+using Nop.Web.Areas.Admin.Models.PartialPayments;
 using Nop.Web.Areas.Admin.Models.Payments;
 using Nop.Web.Areas.Admin.Models.Plugins;
 using Nop.Web.Areas.Admin.Models.Polls;
@@ -107,6 +109,7 @@ namespace Nop.Web.Areas.Admin.Infrastructure.Mapper
             CreateTopicsMaps();
             CreateVendorsMaps();
             CreateWarehouseMaps();
+            CreatePartialPaymentMaps();
 
             //add some generic mapping rules
             ForAllMaps((mapConfiguration, map) =>
@@ -171,6 +174,11 @@ namespace Nop.Web.Areas.Admin.Infrastructure.Mapper
                     }
                 }
             });
+        }
+
+        protected virtual void CreatePartialPaymentMaps()
+        {
+            CreateMap<PartialPayment, PartialPaymentModel>();
         }
 
         #endregion

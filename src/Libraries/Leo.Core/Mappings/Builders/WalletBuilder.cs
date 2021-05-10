@@ -1,11 +1,10 @@
 ﻿using System.Data;
-using System.Runtime.Serialization;
-using Ferasat.Plugin.Customer.CustomWallet.Models;
 using FluentMigrator.Builders.Create.Table;
+using Leo.Core.Customers;
 using Nop.Data.Extensions;
 using Nop.Data.Mapping.Builders;
 
-namespace Ferasat.Plugin.Customer.CustomWallet.Mapping.Builders
+namespace Leo.Core.Mappings.Builders
 {
     public class WalletBuilder : NopEntityBuilder<Wallet>
     {

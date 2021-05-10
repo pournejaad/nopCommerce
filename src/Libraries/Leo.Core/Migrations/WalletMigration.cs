@@ -1,15 +1,15 @@
 ﻿using System;
-using Ferasat.Plugin.Customer.CustomWallet.Models;
 using FluentMigrator;
+using Leo.Core.Customers;
 using Nop.Data.Migrations;
 
-namespace Ferasat.Plugin.Customer.CustomWallet.Migrations
+namespace Leo.Core.Migrations
 {
     [SkipMigrationOnUpdate]
     [NopMigration("2021/05/03 09:36:08:9037696")]
     public class WalletMigration : AutoReversingMigration
     {
-        private IMigrationManager _migrationManager;
+        private readonly IMigrationManager _migrationManager;
 
         public WalletMigration(IMigrationManager migrationManager)
         {

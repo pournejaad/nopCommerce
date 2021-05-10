@@ -19,6 +19,7 @@ namespace Nop.Web.Models.ShoppingCart
             OrderReviewData = new OrderReviewDataModel();
 
             ButtonPaymentMethodViewComponentNames = new List<string>();
+            PartialPayWithWalletBox = new PartialPayWithWalletBoxModel();
         }
 
         public bool OnePageCheckoutEnabled { get; set; }
@@ -39,6 +40,7 @@ namespace Nop.Web.Models.ShoppingCart
         public DiscountBoxModel DiscountBox { get; set; }
         public GiftCardBoxModel GiftCardBox { get; set; }
         public OrderReviewDataModel OrderReviewData { get; set; }
+        public PartialPayWithWalletBoxModel PartialPayWithWalletBox { get; set; }
 
         public IList<string> ButtonPaymentMethodViewComponentNames { get; set; }
 
@@ -141,6 +143,12 @@ namespace Nop.Web.Models.ShoppingCart
             public bool IsPreSelected { get; set; }
         }
 
+        public partial record PartialPayWithWalletBoxModel : BaseNopModel
+        {
+            public bool Display { get; set; }
+            public decimal Amount { get; set; }
+            public bool IsApplied { get; set; }
+        }
         public partial record DiscountBoxModel: BaseNopModel
         {
             public DiscountBoxModel()

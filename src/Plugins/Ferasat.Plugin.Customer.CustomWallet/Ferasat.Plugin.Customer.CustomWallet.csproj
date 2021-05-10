@@ -44,6 +44,15 @@
     <ClearPluginAssemblies Include="$(MSBuildProjectDirectory)\..\..\Build\ClearPluginAssemblies.proj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Controllers" />
+    <Folder Include="Infrastructure" />
+    <Folder Include="Mapping\Builders" />
+    <Folder Include="Migrations" />
+    <Folder Include="Models" />
+    <Folder Include="Services" />
+  </ItemGroup>
+
   <!-- This target execute after "Build" target -->
   <Target Name="NopTarget" AfterTargets="Build">
     <!-- Delete unnecessary libraries from plugins path -->

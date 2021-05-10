@@ -9,6 +9,7 @@ namespace Ferasat.Plugin.Payments.CustomerClub.Controllers
         {
             return View("~/Plugins/Payments.CustomerClub/Views/Index.cshtml");
         }
-        public IActionResult Get
+        
+     
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Leo.Service;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using Nop.Core;
@@ -213,6 +214,9 @@ namespace Nop.Web.Framework.Infrastructure
             services.AddScoped<IReviewTypeService, ReviewTypeService>();
             services.AddSingleton<IEventPublisher, EventPublisher>();
             services.AddScoped<ISettingService, SettingService>();
+            
+            //
+            services.AddScoped<IPartialPaymentService, PartialPaymentService>();
 
             //plugin managers
             services.AddScoped(typeof(IPluginManager<>), typeof(PluginManager<>));

@@ -3,6 +3,7 @@ using Nop.Core.Configuration;
 using Nop.Core.Infrastructure;
 using Nop.Core.Infrastructure.DependencyManagement;
 using Nop.Web.Areas.Admin.Factories;
+using Nop.Web.Factories.PartialPayments;
 using Nop.Web.Framework.Factories;
 using Nop.Web.Infrastructure.Installation;
 
@@ -85,6 +86,9 @@ namespace Nop.Web.Infrastructure
             services.AddScoped<IVendorAttributeModelFactory, VendorAttributeModelFactory>();
             services.AddScoped<IVendorModelFactory, VendorModelFactory>();
             services.AddScoped<IWidgetModelFactory, WidgetModelFactory>();
+            
+            //PartialPayment
+            services.AddScoped<IPartialPaymentModelFactory, PartialPaymentModelFactory>();
 
             //factories
             services.AddScoped<Factories.IAddressModelFactory, Factories.AddressModelFactory>();

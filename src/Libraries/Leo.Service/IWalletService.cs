@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Ferasat.Plugin.Customer.CustomWallet.Models;
+using Leo.Core.Customers;
 using LinqToDB;
 using Nop.Core;
 using Nop.Data;
 
-namespace Ferasat.Plugin.Customer.CustomWallet.Services
+namespace Leo.Service
 {
     public interface IWalletService
     {

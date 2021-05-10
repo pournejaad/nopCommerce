@@ -1,7 +1,6 @@
 using Nop.Core;
-using Nop.Web.Framework.Models;
 
-namespace Ferasat.Plugin.Customer.CustomWallet.Models
+namespace Leo.Core.Customers
 {
     public class Wallet : BaseEntity
     {
