@@ -179,6 +179,7 @@ namespace Nop.Web.Areas.Admin.Infrastructure.Mapper
         protected virtual void CreatePartialPaymentMaps()
         {
             CreateMap<PartialPayment, PartialPaymentModel>();
+            CreateMap<PartialPaymentModel, PartialPayment>();
         }
 
         #endregion

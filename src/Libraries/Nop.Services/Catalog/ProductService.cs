@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Leo.Core.Payments;
 using Nop.Core;
 using Nop.Core.Caching;
 using Nop.Core.Domain.Catalog;
@@ -63,6 +64,7 @@ namespace Nop.Services.Catalog
         protected readonly IStoreService _storeService;
         protected readonly IWorkContext _workContext;
         protected readonly LocalizationSettings _localizationSettings;
+        private readonly IRepository<PartialPaymentProductMapping> _partialPaymentProductMappingRepository;
 
         #endregion
 
@@ -101,7 +103,7 @@ namespace Nop.Services.Catalog
             IStoreService storeService,
             IStoreMappingService storeMappingService,
             IWorkContext workContext,
-            LocalizationSettings localizationSettings)
+            LocalizationSettings localizationSettings, IRepository<PartialPaymentProductMapping> partialPaymentProductMappingRepository)
         {
             _catalogSettings = catalogSettings;
             _commonSettings = commonSettings;
@@ -137,6 +139,7 @@ namespace Nop.Services.Catalog
             _storeService = storeService;
             _workContext = workContext;
             _localizationSettings = localizationSettings;
+            _partialPaymentProductMappingRepository = partialPaymentProductMappingRepository;
         }
 
         #endregion
@@ -2650,6 +2653,37 @@ namespace Nop.Services.Catalog
         public virtual async Task DeleteDiscountProductMappingAsync(DiscountProductMapping discountProductMapping)
         {
             await _discountProductMappingRepository.DeleteAsync(discountProductMapping);
+        }
+
+        public async Task UpdateHasPartialPaymentsAppliedAsync(Product product)
+        {
+            if (product == null)
+            {
+                throw new ArgumentNullException(nameof(product));
+            }
+
+            product.HasPartialPaymentApplied = _partialPaymentProductMappingRepository.Table
+                .Any(ppp => ppp.ProductId == product.Id);
+            await UpdateProductAsync(product);
+        }
+
+        public async Task<IPagedList<Product>> GetProductsWithAppliedPartialPaymentAsync(int? partialPaymentId, bool showHidden, int pageIndex, int pageSize)
+        {
+            var products = _productRepository.Table.Where(product => product.HasDiscountsApplied);
+
+            if (partialPaymentId.HasValue)
+                products = from product in products
+                    join dpm in _partialPaymentProductMappingRepository.Table on product.Id equals dpm.ProductId
+                    where dpm.PartialPaymentId == partialPaymentId.Value
+                    select product;
+
+            if (!showHidden)
+                products = products.Where(product => !product.Deleted);
+
+            products = products.OrderBy(product => product.DisplayOrder).ThenBy(product => product.Id);
+
+            return await products.ToPagedListAsync(pageIndex, pageSize);
+
         }
 
         #endregion

@@ -1,13 +1,16 @@
 ﻿@model Nop.Web.Areas.Admin.Models.PartialPayments.PartialPaymentModel
+
 @{
-    ViewBag.PageTitle = T("Admin.Promotions.PartialPayments.AddNew").Text;
-    Html.SetActiveMenuItemSystemName("Partial Payments");
+    //page title
+    ViewBag.PageTitle = T("Admin.Promotions.PartialPayments.EditDiscountDetails").Text;
+    //active menu item (system name)
+    Html.SetActiveMenuItemSystemName("PartialPayments");
 }
 
-<form asp-controller="PartialPayment" asp-action="Create" method="post" id="partial-payment-form">
+<form asp-controller="PartialPayment" asp-action="Edit" method="post" id="partial-payment-form">
     <div class="content-header clearfix">
         <h1 class="float-left">
-            @T("Admin.Promotions.PartialPayments.AddNew")
+            @T("Admin.Promotions.PartialPayments.EditPartialPaymentDetails") - @Model.Name
             <small>
                 <i class="fas fa-arrow-circle-left"></i>
                 <a asp-action="List">@T("Admin.Promotions.PartialPayments.BackToList")</a>
@@ -22,9 +25,13 @@
                 <i class="far fa-save"></i>
                 @T("Admin.Common.SaveContinue")
             </button>
-            @await Component.InvokeAsync("AdminWidget", new {widgetZone = "admin_partial_payments_details_buttons"})
-
+            <span id="discount-delete" class="btn btn-danger">
+                <i class="far fa-trash-alt"></i>
+                @T("Admin.Common.Delete")
+            </span>
         </div>
+        @await Component.InvokeAsync("AdminWidget", new { widgetZone = "admin_partial_payment_details_buttons", additionalData = Model })
     </div>
     @await Html.PartialAsync("_CreateOrUpdate", Model)
 </form>
+<nop-delete-confirmation asp-model-id="@Model.Id" asp-button-id="partial-payment-delete" />

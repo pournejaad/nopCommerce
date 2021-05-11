@@ -11,6 +11,7 @@ namespace Nop.Web.Areas.Admin.Models.PartialPayments
         {
             PartialPaymentProductSearchModel = new PartialPaymentProductSearchModel();
         }
+
         #region Properties
 
         [NopResourceDisplayName("Admin.Promotions.PartialPayments.Fields.Name")]
@@ -18,6 +19,9 @@ namespace Nop.Web.Areas.Admin.Models.PartialPayments
 
         [NopResourceDisplayName("Admin.Promotions.PartialPayments.Fields.AdminComment")]
         public string AdminComment { get; set; }
+
+        [NopResourceDisplayName("Admin.Promotions.PartialPayments.Fields.UsePercentage")]
+        public bool UsePercentage { get; set; }
 
         [NopResourceDisplayName("Admin.Promotions.PartialPayments.Fields.PartialPaymentPercentage")]
         public decimal PartialPaymentPercentage { get; set; }
@@ -37,12 +41,8 @@ namespace Nop.Web.Areas.Admin.Models.PartialPayments
         [UIHint("DateTimeNullable")]
         public DateTime? EndDateUtc { get; set; }
 
-        [NopResourceDisplayName("Admin.Promotions.PartialPayments.Requirements.RequirementGroup")]
-        public int RequirementGroupId { get; set; }
-
         public PartialPaymentProductSearchModel PartialPaymentProductSearchModel { get; set; }
+
         #endregion
-        
-        
     }
 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Leo.Service;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
@@ -79,6 +80,7 @@ namespace Nop.Web.Controllers
         private readonly OrderSettings _orderSettings;
         private readonly ShoppingCartSettings _shoppingCartSettings;
         private readonly ShippingSettings _shippingSettings;
+        private readonly IPartialPaymentService _partialPaymentService;
 
         #endregion
 
@@ -117,7 +119,7 @@ namespace Nop.Web.Controllers
             MediaSettings mediaSettings,
             OrderSettings orderSettings,
             ShoppingCartSettings shoppingCartSettings,
-            ShippingSettings shippingSettings)
+            ShippingSettings shippingSettings, IPartialPaymentService partialPaymentService)
         {
             _captchaSettings = captchaSettings;
             _customerSettings = customerSettings;
@@ -153,6 +155,7 @@ namespace Nop.Web.Controllers
             _orderSettings = orderSettings;
             _shoppingCartSettings = shoppingCartSettings;
             _shippingSettings = shippingSettings;
+            _partialPaymentService = partialPaymentService;
         }
 
         #endregion
@@ -1324,9 +1327,10 @@ namespace Nop.Web.Controllers
             await ParseAndSaveCheckoutAttributesAsync(cart, form);
             var model = new ShoppingCartModel();
             model = await _shoppingCartModelFactory.PrepareShoppingCartModelAsync(model, cart);
-            var p = model.Items.First().UnitPrice;
-            var uu = decimal.Parse(p) - decimal.Parse(amount);
-            model.Items.First().UnitPrice = uu.ToString();
+            if (!string.IsNullOrEmpty(amount))
+            {
+                var partialPayments = (await _partialPaymentService.GetAllPartialPaymentsAsync());
+            }
             return View(model);
 
         }

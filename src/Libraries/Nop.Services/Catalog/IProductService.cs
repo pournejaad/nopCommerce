@@ -937,5 +937,8 @@ namespace Nop.Services.Catalog
         Task DeleteDiscountProductMappingAsync(DiscountProductMapping discountProductMapping);
 
         #endregion
+
+        Task UpdateHasPartialPaymentsAppliedAsync(Product product);
+        Task<IPagedList<Product>> GetProductsWithAppliedPartialPaymentAsync(int? partialPaymentId, bool showHidden, int pageIndex, int pageSize);
     }
 }

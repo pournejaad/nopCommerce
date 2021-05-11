@@ -18,4 +18,10 @@ namespace Nop.Web.Areas.Admin.Models.PartialPayments
         [UIHint("DateNullable")]
         public DateTime? SearchEndDate { get; set; }
     }
+
+    public record PartialPaymentProductModel : BaseNopEntityModel
+    {
+        public int ProductId { get; set; }
+        public string ProductName { get; set; }
+    }
 }

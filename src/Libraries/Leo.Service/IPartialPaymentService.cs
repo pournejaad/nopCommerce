@@ -4,6 +4,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using Leo.Core.Payments;
 using Nop.Core;
+using Nop.Core.Domain.Catalog;
+using Nop.Core.Domain.Customers;
+using Nop.Core.Domain.Discounts;
 using Nop.Data;
 using Nop.Services.Localization;
 
@@ -17,6 +20,13 @@ namespace Leo.Service
 
         public decimal GetPartialPaymentAmount(PartialPayment partialPayment, decimal amount);
 
+        Task InsertPartialPaymentAsync(PartialPayment partialPayment);
+        Task<PartialPayment> GetPartialPaymentByIdAsync(int id);
+        Task UpdateDiscountAsync(PartialPayment partialPayment);
+        Task<IList<Product>> GetProductsByIdsAsync(int[] productIds);
+        Task<PartialPaymentProductMapping> GetPartialPaymentAppliedToProductAsync(int productId, int partialPaymentId);
+        Task InsertPartialPaymentProductMappingAsync(PartialPaymentProductMapping partialPaymentProductMapping);
+        Task UpdatePartialPaymentAsync(PartialPayment partialPayment);
     }
 
     public class PartialPaymentService : IPartialPaymentService
@@ -24,13 +34,18 @@ namespace Leo.Service
         private readonly IRepository<PartialPayment> _partialPaymentRepository;
         private readonly IStoreContext _storeContext;
         private readonly ILocalizationService _localizationService;
+        private readonly IRepository<Product> _productRepository;
+        private readonly IRepository<PartialPaymentProductMapping> _partialPaymentProductMappingRepository;
 
         public PartialPaymentService(IRepository<PartialPayment> partialPaymentRepository, IStoreContext storeContext,
-            ILocalizationService localizationService)
+            ILocalizationService localizationService, IRepository<Product> productRepository,
+            IRepository<PartialPaymentProductMapping> partialPaymentProductMappingRepository)
         {
             _partialPaymentRepository = partialPaymentRepository;
             _storeContext = storeContext;
             _localizationService = localizationService;
+            _productRepository = productRepository;
+            _partialPaymentProductMappingRepository = partialPaymentProductMappingRepository;
         }
 
         public async Task<IList<PartialPayment>> GetAllPartialPaymentsAsync(string partialPaymentName = null,
@@ -73,7 +88,6 @@ namespace Leo.Service
             if (partialPayment.UsePercentage)
             {
                 result = (decimal)((float)amount * (float)partialPayment.PartialPaymentPercentage / 100f);
-                
             }
             else
             {
@@ -87,7 +101,50 @@ namespace Leo.Service
             if (result < decimal.Zero)
                 result = decimal.Zero;
             return result;
+        }
 
+        public async Task InsertPartialPaymentAsync(PartialPayment partialPayment)
+        {
+            await _partialPaymentRepository.InsertAsync(partialPayment);
+        }
+
+        public async Task<PartialPayment> GetPartialPaymentByIdAsync(int id)
+        {
+            return await _partialPaymentRepository.GetByIdAsync(id, cache => default);
+        }
+
+        public virtual async Task UpdateDiscountAsync(PartialPayment partialPayment)
+        {
+            await _partialPaymentRepository.UpdateAsync(partialPayment);
+        }
+
+        public async Task<IList<Product>> GetProductsByIdsAsync(int[] productIds)
+        {
+            return await _productRepository.GetByIdsAsync(productIds, cache => default, false);
+        }
+
+        public async Task<PartialPaymentProductMapping> GetPartialPaymentAppliedToProductAsync(int productId,
+            int partialPaymentId)
+        {
+            return await _partialPaymentProductMappingRepository.Table
+                .FirstOrDefaultAsync(ppp => ppp.ProductId == productId && ppp.PartialPaymentId == partialPaymentId);
+        }
+
+        public async Task InsertPartialPaymentProductMappingAsync(
+            PartialPaymentProductMapping partialPaymentProductMapping)
+        {
+            await _partialPaymentProductMappingRepository.InsertAsync(partialPaymentProductMapping);
+        }
+
+        public async Task UpdatePartialPaymentAsync(PartialPayment partialPayment)
+        {
+            await _partialPaymentRepository.UpdateAsync(partialPayment);
+        }
+
+        public async Task<PartialPaymentValidationResult> ValidatePartialPaymentAsync(PartialPayment partialPayment,
+            Customer customer)
+        {
+            
         }
     }
 }

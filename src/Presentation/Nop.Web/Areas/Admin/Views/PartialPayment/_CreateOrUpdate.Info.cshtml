@@ -1,0 +1,95 @@
+﻿@model Nop.Web.Areas.Admin.Models.PartialPayments.PartialPaymentModel
+
+<script >
+$(document).ready(function() {
+  $("#@Html.IdFor(model => model.UsePercentage)").click(toggleUsePercentage);
+  toggleUsePercentage();
+})
+ function toggleUsePercentage() {
+        if ($('#@Html.IdFor(model => model.UsePercentage)').is(':checked')) {
+            $('#pnlPartialPaymentPercentage').showElement();
+            $('#pnlPartialPaymentAmount').hideElement();
+            $('#pnlMaximumPartialPaymentAmount').showElement();
+        } else {
+            $('#pnlPartialPaymentPercentage').hideElement();
+            $('#pnlPartialPaymentAmount').showElement();
+            $('#pnlMaximumPartialPaymentAmount').hideElement();
+        }
+    }
+</script>
+<div class="card-body">
+    <div class="form-group row">
+        <div class="col-md-3">
+            <nop-label asp-for="Name"/>
+        </div>
+        <div class="col-md-9">
+            <nop-editor asp-for="Name" asp-required="true"/>
+            <span asp-validation-for="Name"></span>
+        </div>
+    </div>
+    <div class="form-group row">
+        <div class="col-md-3">
+            <nop-label asp-for="UsePercentage"/>
+        </div>
+        <div class="col-md-9">
+            <nop-editor asp-for="UsePercentage"/>
+            <span asp-validation-for="UsePercentage"></span>
+        </div>
+    </div>
+    <nop-nested-setting asp-for="UsePercentage">
+        <div class="form-group row" id="pnlPartialPaymentPercentage">
+            <div class="col-md-3">
+                <nop-label asp-for="PartialPaymentPercentage"/>
+            </div>
+            <div class="col-md-9">
+                <nop-editor asp-for="PartialPaymentPercentage"/>
+                <span asp-validation-for="PartialPaymentPercentage"></span>
+            </div>
+        </div>
+        <div class="form-group row" id="pnlMaximumPartialPaymentAmount">
+            <div class="col-md-3">
+                <nop-label asp-for="MaximumPartialPaymentAmount"/>
+            </div>
+            <div class="col-md-9">
+                <nop-editor asp-for="MaximumPartialPaymentAmount"/> @*asp-postfix="@Model.PrimaryStoreCurrencyCode"/>*@
+                <span asp-validation-for="MaximumPartialPaymentAmount"></span>
+            </div>
+        </div>
+    </nop-nested-setting>
+    <div class="form-group row" id="pnlPartialPaymentAmount">
+        <div class="col-md-3">
+            <nop-label asp-for="PartialPaymentAmount"/>
+        </div>
+        <div class="col-md-9">
+            <nop-editor asp-for="PartialPaymentAmount"/> @*asp-postfix="@Model.PrimaryStoreCurrencyCode"/>*@
+            <span asp-validation-for="PartialPaymentAmount"></span>
+        </div>
+    </div>
+    <div class="form-group row">
+        <div class="col-md-3">
+            <nop-label asp-for="StartDateUtc"/>
+        </div>
+        <div class="col-md-9">
+            <nop-editor asp-for="StartDateUtc"/>
+            <span asp-validation-for="StartDateUtc"></span>
+        </div>
+    </div>
+    <div class="form-group row">
+        <div class="col-md-3">
+            <nop-label asp-for="EndDateUtc"/>
+        </div>
+        <div class="col-md-9">
+            <nop-editor asp-for="EndDateUtc"/>
+            <span asp-validation-for="EndDateUtc"></span>
+        </div>
+    </div>
+    <div class="form-group row">
+        <div class="col-md-3">
+            <nop-label asp-for="AdminComment"/>
+        </div>
+        <div class="col-md-9">
+            <nop-textarea asp-for="AdminComment"/>
+            <span asp-validation-for="AdminComment"></span>
+        </div>
+    </div>
+</div>

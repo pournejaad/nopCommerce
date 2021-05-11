@@ -612,5 +612,7 @@ namespace Nop.Core.Domain.Catalog
             get => (RentalPricePeriod)RentalPricePeriodId;
             set => RentalPricePeriodId = (int)value;
         }
+
+        public bool HasPartialPaymentApplied { get; set; }
     }
 }

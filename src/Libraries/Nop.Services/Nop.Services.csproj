@@ -26,6 +26,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Leo.Core\Leo.Core.csproj" />
     <ProjectReference Include="..\Nop.Core\Nop.Core.csproj" />
     <ProjectReference Include="..\Nop.Data\Nop.Data.csproj" />
   </ItemGroup>
