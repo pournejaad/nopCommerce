@@ -41,6 +41,79 @@ using Nop.Web.Models.ShoppingCart;
 
 namespace Nop.Web.Controllers
 {
+    public partial class ShoppingCartController : BasePublicController
+    {
+        [HttpPost, ActionName("Cart")]
+        [FormValueRequired("applypartialpayment")]
+        public virtual async Task<IActionResult> ApplyPartial(string amount, IFormCollection form)
+        {
+            IList<ShoppingCartItem> cart = await _shoppingCartService.GetShoppingCartAsync(
+                await _workContext.GetCurrentCustomerAsync(),
+                ShoppingCartType.ShoppingCart, (await _storeContext.GetCurrentStoreAsync()).Id);
+            await ParseAndSaveCheckoutAttributesAsync(cart, form);
+            var model = new ShoppingCartModel();
+            model = await _shoppingCartModelFactory.PrepareShoppingCartModelAsync(model, cart);
+            if (!string.IsNullOrWhiteSpace(amount))
+            {
+                // first check whether product is in a partial payment junction
+                // then if product could be paid with 
+                var partialPaymentProductMappings =
+                    (await _partialPaymentService.GetAllPartialPaymentProductMappings())
+                    .Where(x =>
+                        cart.Select(sc => sc.ProductId).Contains(x.ProductId)).ToList();
+
+                if (partialPaymentProductMappings.Any())
+                {
+                    var userErrors = new List<string>();
+
+                    var whichPartialPaymentIsAvailable =
+                        (partialPaymentProductMappings.Select(async x =>
+                        {
+                            var partialPayment =
+                                await _partialPaymentService.GetPartialPaymentByIdAsync(x.PartialPaymentId);
+                            if (partialPayment.StartDateUtc.HasValue &&
+                                partialPayment.StartDateUtc.Value < DateTime.UtcNow
+                                || partialPayment.EndDateUtc.HasValue &&
+                                partialPayment.EndDateUtc.Value > DateTime.UtcNow)
+                            {
+                                return partialPayment;
+                            }
+
+                            return null;
+                        }));
+                    if (whichPartialPaymentIsAvailable.Any())
+                    {
+                        //validate
+                    }
+                    else
+                    {
+                        if (userErrors.Any())
+                            //some user errors
+                            model.PartialPayWithWalletBox.Messages = userErrors;
+                        else
+                            //general error text
+                            model.PartialPayWithWalletBox.Messages.Add(
+                                await _localizationService.GetResourceAsync(
+                                    "ShoppingCart.PartialPaymentAmount.WrongDiscount"));
+                    }
+                }
+                else
+                    //discount cannot be found
+                    model.PartialPayWithWalletBox.Messages.Add(
+                        await _localizationService.GetResourceAsync("ShoppingCart.PartialPayment.NoProductAvailableToBePaid"));
+            }
+            else
+                //empty coupon code
+                model.PartialPayWithWalletBox.Messages.Add(
+                    await _localizationService.GetResourceAsync("ShoppingCart.PartialPaymentAmount.Empty"));
+
+            model = await _shoppingCartModelFactory.PrepareShoppingCartModelAsync(model, cart);
+
+            return View(model);
+
+        }
+    }
+
     [AutoValidateAntiforgeryToken]
     public partial class ShoppingCartController : BasePublicController
     {
@@ -1318,23 +1391,7 @@ namespace Nop.Web.Controllers
             return RedirectToRoute("LoginCheckoutAsGuest", new {returnUrl = Url.RouteUrl("ShoppingCart")});
         }
 
-        [HttpPost, ActionName("Cart")]
-        [FormValueRequired("applypartialpayment")]
-        public virtual async Task<IActionResult> ApplyPartial(string amount, IFormCollection form)
-        {
-            var cart = await _shoppingCartService.GetShoppingCartAsync(await _workContext.GetCurrentCustomerAsync(),
-                ShoppingCartType.ShoppingCart, (await _storeContext.GetCurrentStoreAsync()).Id);
-            await ParseAndSaveCheckoutAttributesAsync(cart, form);
-            var model = new ShoppingCartModel();
-            model = await _shoppingCartModelFactory.PrepareShoppingCartModelAsync(model, cart);
-            if (!string.IsNullOrEmpty(amount))
-            {
-                var partialPayments = (await _partialPaymentService.GetAllPartialPaymentsAsync());
-            }
-            return View(model);
 
-        }
-        
         [HttpPost, ActionName("Cart")]
         [FormValueRequired("applydiscountcouponcode")]
         public virtual async Task<IActionResult> ApplyDiscountCoupon(string discountcouponcode, IFormCollection form)

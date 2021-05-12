@@ -27,6 +27,7 @@ namespace Leo.Service
         Task<PartialPaymentProductMapping> GetPartialPaymentAppliedToProductAsync(int productId, int partialPaymentId);
         Task InsertPartialPaymentProductMappingAsync(PartialPaymentProductMapping partialPaymentProductMapping);
         Task UpdatePartialPaymentAsync(PartialPayment partialPayment);
+        Task<IList<PartialPaymentProductMapping>> GetAllPartialPaymentProductMappings();
     }
 
     public class PartialPaymentService : IPartialPaymentService
@@ -141,10 +142,15 @@ namespace Leo.Service
             await _partialPaymentRepository.UpdateAsync(partialPayment);
         }
 
+        public async Task<IList<PartialPaymentProductMapping>> GetAllPartialPaymentProductMappings()
+        {
+            return await _partialPaymentProductMappingRepository.Table.ToListAsync();
+        }
+
         public async Task<PartialPaymentValidationResult> ValidatePartialPaymentAsync(PartialPayment partialPayment,
             Customer customer)
         {
-            
+            return null;
         }
     }
 }
