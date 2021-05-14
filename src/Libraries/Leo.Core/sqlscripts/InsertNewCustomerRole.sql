@@ -1,0 +1,21 @@
+﻿INSERT INTO CustomerRole
+([Name],
+ [SystemName],
+ [FreeShipping],
+ [TaxExempt],
+ [Active],
+ [IsSystemRole],
+ [EnablePasswordLifetime],
+ [OverrideTaxDisplayType],
+ [DefaultTaxDisplayTypeId],
+ [PurchasedWithProductId])
+VALUES ('Customer Clubs',
+        'CustomerClubs',
+        0,
+        0,
+        1,
+        1,
+        0,
+        0,
+        0,
+        0)

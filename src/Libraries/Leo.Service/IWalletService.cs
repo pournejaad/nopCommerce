@@ -11,6 +11,7 @@ namespace Leo.Service
     {
         Task Deposit(decimal amount);
         Task Withdraw(decimal amount);
+        Task<decimal> GetCustomerBalanceAsync();
     }
 
     public class WalletService : IWalletService
@@ -42,6 +43,14 @@ namespace Leo.Service
                 throw new Exception("No enough credit");
             mapping.Balance -= amount;
             await _walletRepository.UpdateAsync(mapping);
+        }
+
+        public async Task<decimal> GetCustomerBalanceAsync()
+        {
+            return (await _walletRepository.Table.FirstOrDefaultAsync(x =>
+                    x.CustomerId == _context.GetCurrentCustomerAsync().Id))
+                .Balance;
+
         }
     }
 }

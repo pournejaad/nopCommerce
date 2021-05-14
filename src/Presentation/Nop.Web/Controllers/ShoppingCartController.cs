@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Leo.Core.Payments;
 using Leo.Service;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -43,64 +44,86 @@ namespace Nop.Web.Controllers
 {
     public partial class ShoppingCartController : BasePublicController
     {
+        private readonly IWalletService _walletService;
+
         [HttpPost, ActionName("Cart")]
         [FormValueRequired("applypartialpayment")]
         public virtual async Task<IActionResult> ApplyPartial(string amount, IFormCollection form)
         {
-            IList<ShoppingCartItem> cart = await _shoppingCartService.GetShoppingCartAsync(
+            var cart = await _shoppingCartService.GetShoppingCartAsync(
                 await _workContext.GetCurrentCustomerAsync(),
                 ShoppingCartType.ShoppingCart, (await _storeContext.GetCurrentStoreAsync()).Id);
             await ParseAndSaveCheckoutAttributesAsync(cart, form);
             var model = new ShoppingCartModel();
-            model = await _shoppingCartModelFactory.PrepareShoppingCartModelAsync(model, cart);
-            if (!string.IsNullOrWhiteSpace(amount))
+
+            var customerBalance = await _walletService.GetCustomerBalanceAsync();
+            if (!string.IsNullOrWhiteSpace(amount) && decimal.TryParse(amount, out var customerAmount) &&
+                customerAmount <= customerBalance)
             {
-                // first check whether product is in a partial payment junction
-                // then if product could be paid with 
-                var partialPaymentProductMappings =
-                    (await _partialPaymentService.GetAllPartialPaymentProductMappings())
-                    .Where(x =>
-                        cart.Select(sc => sc.ProductId).Contains(x.ProductId)).ToList();
-
-                if (partialPaymentProductMappings.Any())
+                foreach (var item in cart)
                 {
-                    var userErrors = new List<string>();
+                    var partialPaymentMapping = await _partialPaymentService
+                        .GetPartialPaymentMappingByProductId(item.ProductId);
 
-                    var whichPartialPaymentIsAvailable =
-                        (partialPaymentProductMappings.Select(async x =>
-                        {
-                            var partialPayment =
-                                await _partialPaymentService.GetPartialPaymentByIdAsync(x.PartialPaymentId);
-                            if (partialPayment.StartDateUtc.HasValue &&
-                                partialPayment.StartDateUtc.Value < DateTime.UtcNow
-                                || partialPayment.EndDateUtc.HasValue &&
-                                partialPayment.EndDateUtc.Value > DateTime.UtcNow)
-                            {
-                                return partialPayment;
-                            }
+                    if (partialPaymentMapping == null)
+                        continue;
 
-                            return null;
-                        }));
-                    if (whichPartialPaymentIsAvailable.Any())
+                    var partialPayment =
+                        await _partialPaymentService.GetPartialPaymentByIdAsync(partialPaymentMapping
+                            .PartialPaymentId);
+                    if (partialPayment == null)
+                        continue;
+
+                    var product = await _productService
+                        .GetProductByIdAsync(partialPaymentMapping.ProductId);
+
+                    var allowedValueToBePaidPartially = decimal.Zero;
+                    if (partialPayment.UsePercentage)
                     {
-                        //validate
+                        var percent = product.Price * partialPayment.PartialPaymentPercentage / 100M;
+
+                        if (partialPayment.MaximumPartialPaymentAmount.HasValue &&
+                            percent > partialPayment.MaximumPartialPaymentAmount.Value)
+                        {
+                            allowedValueToBePaidPartially = partialPayment.MaximumPartialPaymentAmount.Value;
+                        }
+                        else
+                        {
+                            allowedValueToBePaidPartially = percent;
+                        }
                     }
                     else
                     {
-                        if (userErrors.Any())
-                            //some user errors
-                            model.PartialPayWithWalletBox.Messages = userErrors;
-                        else
-                            //general error text
-                            model.PartialPayWithWalletBox.Messages.Add(
-                                await _localizationService.GetResourceAsync(
-                                    "ShoppingCart.PartialPaymentAmount.WrongDiscount"));
+                        allowedValueToBePaidPartially = partialPayment.PartialPaymentAmount;
                     }
+
+                    var quantity = item.Quantity;
+                    var allowedValue = allowedValueToBePaidPartially * quantity;
+                    var appliedValue = decimal.Zero;
+                    if (customerAmount > allowedValue)
+                    {
+                        customerAmount -= allowedValue;
+                        appliedValue = allowedValue;
+                    }
+                    else
+                    {
+                        appliedValue = customerAmount;
+                        customerAmount = decimal.Zero;
+                    }
+
+
+                    var paymentOption = new PartialPaymentOption()
+                    {
+                        ShoppingCarteItemId = item.Id,
+                        AllowedValue = allowedValue,
+                        AppliedValue = appliedValue 
+                    };
+                    
                 }
-                else
-                    //discount cannot be found
-                    model.PartialPayWithWalletBox.Messages.Add(
-                        await _localizationService.GetResourceAsync("ShoppingCart.PartialPayment.NoProductAvailableToBePaid"));
+                // get products in cart.
+                // get the ones with partial payment 
+                // for each product calculate the maximum amount that can be reduced.
+                // for each product reduce the amount till amount satisfies.
             }
             else
                 //empty coupon code
@@ -110,7 +133,6 @@ namespace Nop.Web.Controllers
             model = await _shoppingCartModelFactory.PrepareShoppingCartModelAsync(model, cart);
 
             return View(model);
-
         }
     }
 
@@ -192,7 +214,8 @@ namespace Nop.Web.Controllers
             MediaSettings mediaSettings,
             OrderSettings orderSettings,
             ShoppingCartSettings shoppingCartSettings,
-            ShippingSettings shippingSettings, IPartialPaymentService partialPaymentService)
+            ShippingSettings shippingSettings, IPartialPaymentService partialPaymentService,
+            IWalletService walletService)
         {
             _captchaSettings = captchaSettings;
             _customerSettings = customerSettings;
@@ -229,6 +252,7 @@ namespace Nop.Web.Controllers
             _shoppingCartSettings = shoppingCartSettings;
             _shippingSettings = shippingSettings;
             _partialPaymentService = partialPaymentService;
+            _walletService = walletService;
         }
 
         #endregion
