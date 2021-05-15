@@ -217,6 +217,7 @@ namespace Nop.Web.Framework.Infrastructure
             
             //
             services.AddScoped<IPartialPaymentService, PartialPaymentService>();
+            services.AddScoped<IWalletService, WalletService>();
 
             //plugin managers
             services.AddScoped(typeof(IPluginManager<>), typeof(PluginManager<>));

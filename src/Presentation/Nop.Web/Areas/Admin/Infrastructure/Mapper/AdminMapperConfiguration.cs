@@ -180,6 +180,9 @@ namespace Nop.Web.Areas.Admin.Infrastructure.Mapper
         {
             CreateMap<PartialPayment, PartialPaymentModel>();
             CreateMap<PartialPaymentModel, PartialPayment>();
+            CreateMap<Product, PartialPaymentProductModel>()
+                .ForMember(dest => dest.ProductId, opt => opt.Ignore())
+                .ForMember(dest => dest.ProductName, opt => opt.Ignore());
         }
 
         #endregion

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Leo.Core.Customers;
 using LinqToDB;
@@ -9,8 +10,8 @@ namespace Leo.Service
 {
     public interface IWalletService
     {
-        Task Deposit(decimal amount);
-        Task Withdraw(decimal amount);
+        Task DepositAsync(decimal amount);
+        Task WithdrawAsync(decimal amount);
         Task<decimal> GetCustomerBalanceAsync();
     }
 
@@ -25,32 +26,37 @@ namespace Leo.Service
             _context = context;
         }
 
-        public async Task Deposit(decimal amount)
+        public async Task DepositAsync(decimal amount)
         {
             var customer = await _context.GetCurrentCustomerAsync();
 
-            var mapping = await _walletRepository.Table
-                .FirstAsync(x => x.CustomerId == customer.Id);
+            var mapping = await AsyncExtensions.FirstAsync(_walletRepository.Table, x => x.CustomerId == customer.Id);
             mapping.Balance += amount;
             await _walletRepository.UpdateAsync(mapping);
         }
 
-        public async Task Withdraw(decimal amount)
+        public async Task WithdrawAsync(decimal amount)
         {
             var customer = await _context.GetCurrentCustomerAsync();
-            var mapping = await _walletRepository.Table.FirstAsync(x => x.CustomerId == customer.Id);
+            var mapping = await AsyncExtensions.FirstAsync(_walletRepository.Table, x => x.CustomerId == customer.Id);
             if (amount > mapping.Balance)
-                throw new Exception("No enough credit");
+                throw new NopException($"No enough credit in customer {customer.Id} wallet.");
             mapping.Balance -= amount;
             await _walletRepository.UpdateAsync(mapping);
         }
 
         public async Task<decimal> GetCustomerBalanceAsync()
         {
-            return (await _walletRepository.Table.FirstOrDefaultAsync(x =>
-                    x.CustomerId == _context.GetCurrentCustomerAsync().Id))
-                .Balance;
+            var customer = await _context.GetCurrentCustomerAsync();
 
+            var wallet = await _walletRepository.Table
+                .FirstOrDefaultAsync(x => x.CustomerId == customer.Id);
+            if (wallet == null)
+            {
+                throw new NopException($"No wallet for customer: {customer.Id}");
+            }
+
+            return wallet.Balance;
         }
     }
 }

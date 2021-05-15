@@ -145,16 +145,16 @@ namespace Nop.Web.Factories.PartialPayments
                 throw new ArgumentNullException(nameof(partialPayment));
 
             //get products with applied partial payment
-            var partialPaymentProducts = await _productService.GetProductsWithAppliedPartialPaymentAsync(
+            IPagedList<Product> products = await _productService.GetProductsWithAppliedPartialPaymentAsync(
                 partialPaymentId: partialPayment.Id,
                 showHidden: false,
                 pageIndex: searchModel.Page - 1, pageSize: searchModel.PageSize);
 
             //prepare grid model
-            var model = new PartialPaymentProductListModel().PrepareToGrid(searchModel, partialPaymentProducts, () =>
+            var model = new PartialPaymentProductListModel().PrepareToGrid(searchModel, products, () =>
             {
                 //fill in model values from the entity
-                return partialPaymentProducts.Select(product =>
+                return products.Select(product =>
                 {
                     var partialPaymentProductModel = product.ToModel<PartialPaymentProductModel>();
                     partialPaymentProductModel.ProductId = product.Id;

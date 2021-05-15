@@ -148,7 +148,7 @@ namespace Nop.Web.Models.ShoppingCart
             public bool Display { get; set; }
             public decimal Amount { get; set; }
             public bool IsApplied { get; set; }
-            public List<string> Messages { get; set; }
+            public IList<string> Messages { get; set; }
 
             public PartialPayWithWalletBoxModel()
             {
