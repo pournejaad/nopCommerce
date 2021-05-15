@@ -1,8 +1,13 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Transactions;
+using Leo.Core;
+using Leo.Core.Payments;
+using Leo.Service;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Nop.Core;
@@ -48,6 +53,7 @@ namespace Nop.Web.Factories
     {
         #region Fields
 
+        private readonly IWalletService _walletService;
         private readonly AddressSettings _addressSettings;
         private readonly CaptchaSettings _captchaSettings;
         private readonly CatalogSettings _catalogSettings;
@@ -144,7 +150,7 @@ namespace Nop.Web.Factories
             ShippingSettings shippingSettings,
             ShoppingCartSettings shoppingCartSettings,
             TaxSettings taxSettings,
-            VendorSettings vendorSettings)
+            VendorSettings vendorSettings, IWalletService walletService)
         {
             _addressSettings = addressSettings;
             _captchaSettings = captchaSettings;
@@ -192,6 +198,7 @@ namespace Nop.Web.Factories
             _shoppingCartSettings = shoppingCartSettings;
             _taxSettings = taxSettings;
             _vendorSettings = vendorSettings;
+            _walletService = walletService;
         }
 
         #endregion
@@ -368,12 +375,13 @@ namespace Nop.Web.Factories
         /// </summary>
         /// <param name="cart">List of the shopping cart item</param>
         /// <param name="sci">Shopping cart item</param>
+        /// <param name="partialPaymentOption"></param>
         /// <returns>
         /// A task that represents the asynchronous operation
         /// The task result contains the shopping cart item model
         /// </returns>
         protected virtual async Task<ShoppingCartModel.ShoppingCartItemModel> PrepareShoppingCartItemModelAsync(
-            IList<ShoppingCartItem> cart, ShoppingCartItem sci)
+            IList<ShoppingCartItem> cart, ShoppingCartItem sci, PartialPaymentOption partialPaymentOption)
         {
             if (cart == null)
                 throw new ArgumentNullException(nameof(cart));
@@ -418,10 +426,7 @@ namespace Nop.Web.Factories
             var allowedQuantities = _productService.ParseAllowedQuantities(product);
             foreach (var qty in allowedQuantities)
             {
-                cartItemModel.AllowedQuantities.Add(new SelectListItem
-                {
-                    Text = qty.ToString(), Value = qty.ToString(), Selected = sci.Quantity == qty
-                });
+                cartItemModel.AllowedQuantities.Add(new SelectListItem {Text = qty.ToString(), Value = qty.ToString(), Selected = sci.Quantity == qty});
             }
 
             //recurring info
@@ -457,9 +462,10 @@ namespace Nop.Web.Factories
             {
                 var (shoppingCartUnitPriceWithDiscountBase, _) = await _taxService.GetProductPriceAsync(product,
                     (await _shoppingCartService.GetUnitPriceAsync(sci, true)).unitPrice);
-                var shoppingCartUnitPriceWithDiscount =
+                decimal shoppingCartUnitPriceWithDiscount =
                     await _currencyService.ConvertFromPrimaryStoreCurrencyAsync(shoppingCartUnitPriceWithDiscountBase,
                         await _workContext.GetWorkingCurrencyAsync());
+
                 cartItemModel.UnitPrice = await _priceFormatter.FormatPriceAsync(shoppingCartUnitPriceWithDiscount);
             }
 
@@ -481,6 +487,11 @@ namespace Nop.Web.Factories
                 var shoppingCartItemSubTotalWithDiscount =
                     await _currencyService.ConvertFromPrimaryStoreCurrencyAsync(
                         shoppingCartItemSubTotalWithDiscountBase, await _workContext.GetWorkingCurrencyAsync());
+                if (partialPaymentOption != null && !partialPaymentOption.IsPaid)
+                {
+                    shoppingCartItemSubTotalWithDiscount -= partialPaymentOption.AppliedValue;
+                }
+
                 cartItemModel.SubTotal = await _priceFormatter.FormatPriceAsync(shoppingCartItemSubTotalWithDiscount);
                 cartItemModel.MaximumDiscountedQty = maximumDiscountQty;
 
@@ -567,10 +578,7 @@ namespace Nop.Web.Factories
             var allowedQuantities = _productService.ParseAllowedQuantities(product);
             foreach (var qty in allowedQuantities)
             {
-                cartItemModel.AllowedQuantities.Add(new SelectListItem
-                {
-                    Text = qty.ToString(), Value = qty.ToString(), Selected = sci.Quantity == qty
-                });
+                cartItemModel.AllowedQuantities.Add(new SelectListItem {Text = qty.ToString(), Value = qty.ToString(), Selected = sci.Quantity == qty});
             }
 
             //recurring info
@@ -814,18 +822,13 @@ namespace Nop.Web.Factories
                 var defaultEstimateCountryId = (setEstimateShippingDefaultAddress && shippingAddress != null)
                     ? shippingAddress.CountryId
                     : model.CountryId;
-                model.AvailableCountries.Add(new SelectListItem
-                {
-                    Text = await _localizationService.GetResourceAsync("Address.SelectCountry"), Value = "0"
-                });
+                model.AvailableCountries.Add(new SelectListItem {Text = await _localizationService.GetResourceAsync("Address.SelectCountry"), Value = "0"});
 
                 foreach (var c in await _countryService.GetAllCountriesForShippingAsync(
                     (await _workContext.GetWorkingLanguageAsync()).Id))
                     model.AvailableCountries.Add(new SelectListItem
                     {
-                        Text = await _localizationService.GetLocalizedAsync(c, x => x.Name),
-                        Value = c.Id.ToString(),
-                        Selected = c.Id == defaultEstimateCountryId
+                        Text = await _localizationService.GetLocalizedAsync(c, x => x.Name), Value = c.Id.ToString(), Selected = c.Id == defaultEstimateCountryId
                     });
 
                 //states
@@ -842,18 +845,13 @@ namespace Nop.Web.Factories
                     {
                         model.AvailableStates.Add(new SelectListItem
                         {
-                            Text = await _localizationService.GetLocalizedAsync(s, x => x.Name),
-                            Value = s.Id.ToString(),
-                            Selected = s.Id == defaultEstimateStateId
+                            Text = await _localizationService.GetLocalizedAsync(s, x => x.Name), Value = s.Id.ToString(), Selected = s.Id == defaultEstimateStateId
                         });
                     }
                 }
                 else
                 {
-                    model.AvailableStates.Add(new SelectListItem
-                    {
-                        Text = await _localizationService.GetResourceAsync("Address.Other"), Value = "0"
-                    });
+                    model.AvailableStates.Add(new SelectListItem {Text = await _localizationService.GetResourceAsync("Address.Other"), Value = "0"});
                 }
 
                 if (setEstimateShippingDefaultAddress && shippingAddress != null)
@@ -936,10 +934,7 @@ namespace Nop.Web.Factories
                 if (discount != null)
                 {
                     model.DiscountBox.AppliedDiscountsWithCodes.Add(
-                        new ShoppingCartModel.DiscountBoxModel.DiscountInfoModel
-                        {
-                            Id = discount.Id, CouponCode = discount.CouponCode
-                        });
+                        new ShoppingCartModel.DiscountBoxModel.DiscountInfoModel {Id = discount.Id, CouponCode = discount.CouponCode});
                 }
             }
 
@@ -954,13 +949,37 @@ namespace Nop.Web.Factories
 
             //checkout attributes
             model.CheckoutAttributes = await PrepareCheckoutAttributeModelsAsync(cart);
+            
+            var partialPaymentOptions = await _genericAttributeService
+                .GetAttributeAsync<IList<PartialPaymentOption>>(await _workContext.GetCurrentCustomerAsync(), GenericAttributeKeys.PartialPayment,
+                    (await _storeContext.GetCurrentStoreAsync()).Id);
+            
 
             //cart items
             foreach (var sci in cart)
             {
-                var cartItemModel = await PrepareShoppingCartItemModelAsync(cart, sci);
+                var partialPaymentOption =
+                    partialPaymentOptions?.FirstOrDefault(x => x.ShoppingCarteItemId == sci.Id);
+                var cartItemModel = await PrepareShoppingCartItemModelAsync(cart, sci, partialPaymentOption);
                 model.Items.Add(cartItemModel);
             }
+            //
+            // decimal totalAmountToWithdrawFromWallet = decimal.Zero;
+            // if (partialPaymentOptions!=null  && partialPaymentOptions.Any())
+            // {
+            //     foreach (var ppo in partialPaymentOptions)
+            //     {
+            //         if (!ppo.IsPaid)
+            //         {
+            //             totalAmountToWithdrawFromWallet += ppo.AppliedValue;
+            //             ppo.IsPaid = true;
+            //         }
+            //     }
+            // }
+
+            // await _walletService.WithdrawAsync(totalAmountToWithdrawFromWallet);
+            // await _genericAttributeService.SaveAttributeAsync<IList<PartialPaymentOption>>(await _workContext.GetCurrentCustomerAsync(),
+                // GenericAttributeKeys.PartialPayment, partialPaymentOptions, (await _storeContext.GetCurrentStoreAsync()).Id);
 
             //payment methods
             //all payment methods (do not filter by country here as it could be not specified yet)
@@ -1344,11 +1363,7 @@ namespace Nop.Web.Factories
                 {
                     foreach (var appliedGiftCard in appliedGiftCards)
                     {
-                        var gcModel = new OrderTotalsModel.GiftCard
-                        {
-                            Id = appliedGiftCard.GiftCard.Id,
-                            CouponCode = appliedGiftCard.GiftCard.GiftCardCouponCode,
-                        };
+                        var gcModel = new OrderTotalsModel.GiftCard {Id = appliedGiftCard.GiftCard.Id, CouponCode = appliedGiftCard.GiftCard.GiftCardCouponCode,};
                         var amountCanBeUsed =
                             await _currencyService.ConvertFromPrimaryStoreCurrencyAsync(appliedGiftCard.AmountCanBeUsed,
                                 await _workContext.GetWorkingCurrencyAsync());
@@ -1421,13 +1436,7 @@ namespace Nop.Web.Factories
 
             if (await _shoppingCartService.ShoppingCartRequiresShippingAsync(cart))
             {
-                var address = new Address
-                {
-                    CountryId = request.CountryId,
-                    StateProvinceId = request.StateProvinceId,
-                    ZipPostalCode = request.ZipPostalCode,
-                    City = request.City
-                };
+                var address = new Address {CountryId = request.CountryId, StateProvinceId = request.StateProvinceId, ZipPostalCode = request.ZipPostalCode, City = request.City};
 
                 var rawShippingOptions = new List<ShippingOption>();
 

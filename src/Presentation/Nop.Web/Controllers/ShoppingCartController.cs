@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Xml;
+using Leo.Core;
 using Leo.Core.Payments;
 using Leo.Service;
 using Microsoft.AspNetCore.Http;
@@ -127,8 +128,11 @@ namespace Nop.Web.Controllers
                     paymentOptions.Add(paymentOption);
                 }
 
+                var customer = await _workContext.GetCurrentCustomerAsync();
+                var store = await _storeContext.GetCurrentStoreAsync();
+
                 await _genericAttributeService.SaveAttributeAsync<IList<PartialPaymentOption>>(await _workContext.GetCurrentCustomerAsync(),
-                    "PartialPaymentOption", paymentOptions);
+                    GenericAttributeKeys.PartialPayment, paymentOptions, (await _storeContext.GetCurrentStoreAsync()).Id);
 
                 // get products in cart.
                 // get the ones with partial payment 
