@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
+using Leo.Core;
+using Leo.Core.Payments;
 using Nop.Core;
 using Nop.Core.Domain.Catalog;
 using Nop.Core.Domain.Common;
@@ -378,7 +380,7 @@ namespace Nop.Services.Orders
             updatedOrder.OrderTax = taxTotal;
             updatedOrder.TaxRates = taxRates.Aggregate(string.Empty, (current, next) =>
                 $"{current}{next.Key.ToString(CultureInfo.InvariantCulture)}:{next.Value.ToString(CultureInfo.InvariantCulture)};   ");
-            
+
             return taxTotal;
         }
 
@@ -393,7 +395,8 @@ namespace Nop.Services.Orders
         /// A task that represents the asynchronous operation
         /// The task result contains the shipping total. Shipping (incl tax). Shipping tax rate
         /// </returns>
-        protected virtual async Task<(decimal shippingTotal, decimal shippingTotalInclTax, decimal shippingTaxRate)> UpdateShippingAsync(UpdateOrderParameters updateOrderParameters, IList<ShoppingCartItem> restoredCart,
+        protected virtual async Task<(decimal shippingTotal, decimal shippingTotalInclTax, decimal shippingTaxRate)> UpdateShippingAsync(
+            UpdateOrderParameters updateOrderParameters, IList<ShoppingCartItem> restoredCart,
             decimal subTotalInclTax, decimal subTotalExclTax)
         {
             var shippingTotalExclTax = decimal.Zero;
@@ -439,7 +442,8 @@ namespace Nop.Services.Orders
                         {
                             //customer chose shipping to address, try to get chosen shipping option
                             var shippingAddress = await _addressService.GetAddressByIdAsync(updatedOrder.ShippingAddressId ?? 0);
-                            var shippingOptionsResponse = await _shippingService.GetShippingOptionsAsync(restoredCart, shippingAddress, customer, updatedOrder.ShippingRateComputationMethodSystemName, (await _storeContext.GetCurrentStoreAsync()).Id);
+                            var shippingOptionsResponse = await _shippingService.GetShippingOptionsAsync(restoredCart, shippingAddress, customer,
+                                updatedOrder.ShippingRateComputationMethodSystemName, (await _storeContext.GetCurrentStoreAsync()).Id);
                             if (shippingOptionsResponse.Success)
                             {
                                 var shippingOption = shippingOptionsResponse.ShippingOptions.FirstOrDefault(option =>
@@ -460,7 +464,8 @@ namespace Nop.Services.Orders
                         if (_shippingSettings.AllowPickupInStore)
                         {
                             //try to get the cheapest pickup point
-                            var pickupPointsResponse = await _shippingService.GetPickupPointsAsync(updatedOrder.BillingAddressId, await _workContext.GetCurrentCustomerAsync(), storeId: (await _storeContext.GetCurrentStoreAsync()).Id);
+                            var pickupPointsResponse = await _shippingService.GetPickupPointsAsync(updatedOrder.BillingAddressId, await _workContext.GetCurrentCustomerAsync(),
+                                storeId: (await _storeContext.GetCurrentStoreAsync()).Id);
                             if (pickupPointsResponse.Success)
                             {
                                 updateOrderParameters.PickupPoint = pickupPointsResponse.PickupPoints
@@ -481,7 +486,8 @@ namespace Nop.Services.Orders
                             {
                                 var customerShippingAddress = await _customerService.GetCustomerShippingAddressAsync(customer);
 
-                                var shippingOptionsResponse = await _shippingService.GetShippingOptionsAsync(restoredCart, customerShippingAddress, await _workContext.GetCurrentCustomerAsync(), storeId: (await _storeContext.GetCurrentStoreAsync()).Id);
+                                var shippingOptionsResponse = await _shippingService.GetShippingOptionsAsync(restoredCart, customerShippingAddress,
+                                    await _workContext.GetCurrentCustomerAsync(), storeId: (await _storeContext.GetCurrentStoreAsync()).Id);
                                 if (shippingOptionsResponse.Success)
                                 {
                                     var shippingOption = shippingOptionsResponse.ShippingOptions.OrderBy(option => option.Rate)
@@ -553,7 +559,8 @@ namespace Nop.Services.Orders
         /// A task that represents the asynchronous operation
         /// The task result contains the subtotal. Subtotal (incl tax). Subtotal tax rates. Discount amount (excl tax)
         /// </returns>
-        protected virtual async Task<(decimal subtotal, decimal subTotalInclTax, SortedDictionary<decimal, decimal> subTotalTaxRates, decimal discountAmountExclTax)> UpdateSubTotalAsync(UpdateOrderParameters updateOrderParameters, IList<ShoppingCartItem> restoredCart)
+        protected virtual async Task<(decimal subtotal, decimal subTotalInclTax, SortedDictionary<decimal, decimal> subTotalTaxRates, decimal discountAmountExclTax)>
+            UpdateSubTotalAsync(UpdateOrderParameters updateOrderParameters, IList<ShoppingCartItem> restoredCart)
         {
             var subTotalExclTax = decimal.Zero;
             var subTotalInclTax = decimal.Zero;
@@ -662,14 +669,16 @@ namespace Nop.Services.Orders
         /// <param name="customer">Customer</param>
         /// <param name="orderTotal">Order total</param>
         /// <returns>A task that represents the asynchronous operation</returns>
-        protected virtual async Task<(int redeemedRewardPoints, decimal redeemedRewardPointsAmount)> SetRewardPointsAsync(int redeemedRewardPoints, decimal redeemedRewardPointsAmount,
+        protected virtual async Task<(int redeemedRewardPoints, decimal redeemedRewardPointsAmount)> SetRewardPointsAsync(int redeemedRewardPoints,
+            decimal redeemedRewardPointsAmount,
             bool? useRewardPoints, Customer customer, decimal orderTotal)
         {
             if (!_rewardPointsSettings.Enabled)
                 return (redeemedRewardPoints, redeemedRewardPointsAmount);
 
             if (!useRewardPoints.HasValue)
-                useRewardPoints = await _genericAttributeService.GetAttributeAsync<bool>(customer, NopCustomerDefaults.UseRewardPointsDuringCheckoutAttribute, (await _storeContext.GetCurrentStoreAsync()).Id);
+                useRewardPoints = await _genericAttributeService.GetAttributeAsync<bool>(customer, NopCustomerDefaults.UseRewardPointsDuringCheckoutAttribute,
+                    (await _storeContext.GetCurrentStoreAsync()).Id);
 
             if (!useRewardPoints.Value)
                 return (redeemedRewardPoints, redeemedRewardPointsAmount);
@@ -729,11 +738,7 @@ namespace Nop.Services.Orders
                 //reduce subtotal
                 resultTemp -= amountCanBeUsed;
 
-                var appliedGiftCard = new AppliedGiftCard
-                {
-                    GiftCard = gc,
-                    AmountCanBeUsed = amountCanBeUsed
-                };
+                var appliedGiftCard = new AppliedGiftCard {GiftCard = gc, AmountCanBeUsed = amountCanBeUsed};
                 appliedGiftCards.Add(appliedGiftCard);
             }
 
@@ -782,8 +787,10 @@ namespace Nop.Services.Orders
         /// A task that represents the asynchronous operation
         /// The task result contains the applied discount amount. Applied discounts. Sub total (without discount). Sub total (with discount). Tax rates (of order sub total)
         /// </returns>
-        public virtual async Task<(decimal discountAmount, List<Discount> appliedDiscounts, decimal subTotalWithoutDiscount, decimal subTotalWithDiscount, SortedDictionary<decimal, decimal> taxRates)> GetShoppingCartSubTotalAsync(IList<ShoppingCartItem> cart,
-            bool includingTax)
+        public virtual async
+            Task<(decimal discountAmount, List<Discount> appliedDiscounts, decimal subTotalWithoutDiscount, decimal subTotalWithDiscount, SortedDictionary<decimal, decimal>
+                taxRates)> GetShoppingCartSubTotalAsync(IList<ShoppingCartItem> cart,
+                bool includingTax)
         {
             var discountAmount = decimal.Zero;
             var appliedDiscounts = new List<Discount>();
@@ -797,12 +804,28 @@ namespace Nop.Services.Orders
             //get the customer 
             var customer = await _customerService.GetShoppingCartCustomerAsync(cart);
 
+            var partialPayments = await _genericAttributeService.GetAttributeAsync<IList<PartialPaymentOption>>(customer,
+                GenericAttributeKeys.PartialPayment, (await _storeContext.GetCurrentStoreAsync()).Id);
+
             //sub totals
             var subTotalExclTaxWithoutDiscount = decimal.Zero;
             var subTotalInclTaxWithoutDiscount = decimal.Zero;
             foreach (var shoppingCartItem in cart)
             {
                 var sciSubTotal = (await _shoppingCartService.GetSubTotalAsync(shoppingCartItem, true)).subTotal;
+                decimal toDecrease=Decimal.Zero;
+                
+                if (partialPayments != null && partialPayments.Any())
+                {
+                    var partial = partialPayments.FirstOrDefault(x => x.ShoppingCarteItemId == shoppingCartItem.Id);
+                    if (partial != null)
+                    {
+                        toDecrease = partial.AppliedValue;
+                    }
+                }
+
+                sciSubTotal -= toDecrease;
+
                 var product = await _productService.GetProductByIdAsync(shoppingCartItem.ProductId);
 
                 var (sciExclTax, taxRate) = await _taxService.GetProductPriceAsync(product, sciSubTotal, false, customer);
@@ -828,7 +851,8 @@ namespace Nop.Services.Orders
             //checkout attributes
             if (customer != null)
             {
-                var checkoutAttributesXml = await _genericAttributeService.GetAttributeAsync<string>(customer, NopCustomerDefaults.CheckoutAttributes, (await _storeContext.GetCurrentStoreAsync()).Id);
+                var checkoutAttributesXml =
+                    await _genericAttributeService.GetAttributeAsync<string>(customer, NopCustomerDefaults.CheckoutAttributes, (await _storeContext.GetCurrentStoreAsync()).Id);
                 var attributeValues = _checkoutAttributeParser.ParseCheckoutAttributeValues(checkoutAttributesXml);
                 if (attributeValues != null)
                 {
@@ -950,7 +974,7 @@ namespace Nop.Services.Orders
             //total
             await UpdateTotalAsync(updateOrderParameters, subTotalExclTax, discountAmountExclTax, shippingTotalExclTax, taxTotal);
         }
-        
+
         /// <summary>
         /// Gets a value indicating whether shipping is free
         /// </summary>
@@ -999,7 +1023,7 @@ namespace Nop.Services.Orders
         /// A task that represents the asynchronous operation
         /// The task result contains the adjusted shipping rate. Applied discounts
         /// </returns>
-        public virtual async Task<(decimal adjustedShippingRate, List<Discount> appliedDiscounts)> AdjustShippingRateAsync(decimal shippingRate, IList<ShoppingCartItem> cart, 
+        public virtual async Task<(decimal adjustedShippingRate, List<Discount> appliedDiscounts)> AdjustShippingRateAsync(decimal shippingRate, IList<ShoppingCartItem> cart,
             bool applyToPickupInStore = false)
         {
             //free shipping
@@ -1010,7 +1034,7 @@ namespace Nop.Services.Orders
 
             //with additional shipping charges
             var pickupPoint = await _genericAttributeService.GetAttributeAsync<PickupPoint>(customer,
-                    NopCustomerDefaults.SelectedPickupPointAttribute, (await _storeContext.GetCurrentStoreAsync()).Id);
+                NopCustomerDefaults.SelectedPickupPointAttribute, (await _storeContext.GetCurrentStoreAsync()).Id);
 
             var adjustedRate = shippingRate;
 
@@ -1044,7 +1068,7 @@ namespace Nop.Services.Orders
             return (await GetShoppingCartShippingTotalAsync(cart, includingTax)).shippingTotal;
         }
 
-        
+
         /// <summary>
         /// Gets shopping cart shipping total
         /// </summary>
@@ -1054,7 +1078,8 @@ namespace Nop.Services.Orders
         /// A task that represents the asynchronous operation
         /// The task result contains the shipping total. Applied tax rate. Applied discounts
         /// </returns>
-        public virtual async Task<(decimal? shippingTotal, decimal taxRate, List<Discount> appliedDiscounts)> GetShoppingCartShippingTotalAsync(IList<ShoppingCartItem> cart, bool includingTax)
+        public virtual async Task<(decimal? shippingTotal, decimal taxRate, List<Discount> appliedDiscounts)> GetShoppingCartShippingTotalAsync(IList<ShoppingCartItem> cart,
+            bool includingTax)
         {
             decimal? shippingTotal = null;
             var appliedDiscounts = new List<Discount>();
@@ -1068,7 +1093,8 @@ namespace Nop.Services.Orders
 
             ShippingOption shippingOption = null;
             if (customer != null)
-                shippingOption = await _genericAttributeService.GetAttributeAsync<ShippingOption>(customer, NopCustomerDefaults.SelectedShippingOptionAttribute, (await _storeContext.GetCurrentStoreAsync()).Id);
+                shippingOption = await _genericAttributeService.GetAttributeAsync<ShippingOption>(customer, NopCustomerDefaults.SelectedShippingOptionAttribute,
+                    (await _storeContext.GetCurrentStoreAsync()).Id);
 
             if (shippingOption != null)
             {
@@ -1082,7 +1108,8 @@ namespace Nop.Services.Orders
                 if (customer != null)
                     shippingAddress = await _customerService.GetCustomerShippingAddressAsync(customer);
 
-                var shippingRateComputationMethods = await _shippingPluginManager.LoadActivePluginsAsync(await _workContext.GetCurrentCustomerAsync(), (await _storeContext.GetCurrentStoreAsync()).Id);
+                var shippingRateComputationMethods =
+                    await _shippingPluginManager.LoadActivePluginsAsync(await _workContext.GetCurrentCustomerAsync(), (await _storeContext.GetCurrentStoreAsync()).Id);
                 if (!shippingRateComputationMethods.Any() && !_shippingSettings.AllowPickupInStore)
                     throw new NopException("Shipping rate computation method could not be loaded");
 
@@ -1138,7 +1165,7 @@ namespace Nop.Services.Orders
 
             return (shippingTotalTaxed, taxRate, appliedDiscounts);
         }
-        
+
         /// <summary>
         /// Gets tax
         /// </summary>
@@ -1148,7 +1175,8 @@ namespace Nop.Services.Orders
         /// A task that represents the asynchronous operation
         /// The task result contains the ax total, Tax rates
         /// </returns>
-        public virtual async Task<(decimal taxTotal, SortedDictionary<decimal, decimal> taxRates)> GetTaxTotalAsync(IList<ShoppingCartItem> cart, bool usePaymentMethodAdditionalFee = true)
+        public virtual async Task<(decimal taxTotal, SortedDictionary<decimal, decimal> taxRates)> GetTaxTotalAsync(IList<ShoppingCartItem> cart,
+            bool usePaymentMethodAdditionalFee = true)
         {
             if (cart == null)
                 throw new ArgumentNullException(nameof(cart));
@@ -1162,7 +1190,7 @@ namespace Nop.Services.Orders
 
             return (taxTotal, taxRates);
         }
-        
+
         /// <summary>
         /// Gets shopping cart total
         /// </summary>
@@ -1173,8 +1201,10 @@ namespace Nop.Services.Orders
         /// A task that represents the asynchronous operation
         /// The task result contains the shopping cart total;Null if shopping cart total couldn't be calculated now. Applied gift cards. Applied discount amount. Applied discounts. Reward points to redeem. Reward points amount in primary store currency to redeem
         /// </returns>
-        public virtual async Task<(decimal? shoppingCartTotal, decimal discountAmount, List<Discount> appliedDiscounts, List<AppliedGiftCard> appliedGiftCards, int redeemedRewardPoints, decimal redeemedRewardPointsAmount)> GetShoppingCartTotalAsync(IList<ShoppingCartItem> cart,
-            bool? useRewardPoints = null, bool usePaymentMethodAdditionalFee = true)
+        public virtual async
+            Task<(decimal? shoppingCartTotal, decimal discountAmount, List<Discount> appliedDiscounts, List<AppliedGiftCard> appliedGiftCards, int redeemedRewardPoints, decimal
+                redeemedRewardPointsAmount)> GetShoppingCartTotalAsync(IList<ShoppingCartItem> cart,
+                bool? useRewardPoints = null, bool usePaymentMethodAdditionalFee = true)
         {
             var redeemedRewardPoints = 0;
             var redeemedRewardPointsAmount = decimal.Zero;
@@ -1250,13 +1280,14 @@ namespace Nop.Services.Orders
             if (!shoppingCartShipping.HasValue)
             {
                 //we have errors
-                return (null, discountAmount, appliedDiscounts, appliedGiftCards,redeemedRewardPoints, redeemedRewardPointsAmount);
+                return (null, discountAmount, appliedDiscounts, appliedGiftCards, redeemedRewardPoints, redeemedRewardPointsAmount);
             }
 
             var orderTotal = resultTemp;
 
             //reward points
-            (redeemedRewardPoints, redeemedRewardPointsAmount) = await SetRewardPointsAsync(redeemedRewardPoints, redeemedRewardPointsAmount, useRewardPoints, customer, orderTotal);
+            (redeemedRewardPoints, redeemedRewardPointsAmount) =
+                await SetRewardPointsAsync(redeemedRewardPoints, redeemedRewardPointsAmount, useRewardPoints, customer, orderTotal);
 
             orderTotal -= redeemedRewardPointsAmount;
 

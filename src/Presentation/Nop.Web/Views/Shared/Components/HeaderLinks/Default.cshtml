@@ -4,11 +4,20 @@
 
 <div class="header-links">
     <ul>
-        @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.HeaderLinksBefore })
+        @await Component.InvokeAsync("Widget", new {widgetZone = PublicWidgetZones.HeaderLinksBefore})
         @if (Model.IsAuthenticated)
         {
-            <li><a href="@Url.RouteUrl("CustomerInfo")" class="ico-account">@T("Account.MyAccount")@*@Model.CustomerName*@</a></li>
-            <li><a href="@Url.RouteUrl("Logout")" class="ico-logout">@T("Account.Logout")</a></li>
+            <li id="balance">
+                <a href="#">
+                Value:
+                </a>
+            </li>
+            <li>
+                <a href="@Url.RouteUrl("CustomerInfo")" class="ico-account">@T("Account.MyAccount")@*@Model.CustomerName*@</a>
+            </li>
+            <li>
+                <a href="@Url.RouteUrl("Logout")" class="ico-logout">@T("Account.Logout")</a>
+            </li>
         }
         else
         {
@@ -18,14 +27,18 @@
 
             @if (Model.RegistrationType != UserRegistrationType.Disabled)
             {
-                <li><a href="@Url.RouteUrl("Register", new { returnUrl })" class="ico-register">@T("Account.Register")</a></li>
+                <li>
+                    <a href="@Url.RouteUrl("Register", new {returnUrl})" class="ico-register">@T("Account.Register")</a>
+                </li>
             }
-            <li><a href="@Url.RouteUrl("Login", new { returnUrl })" class="ico-login">@T("Account.Login")</a></li>
+            <li>
+                <a href="@Url.RouteUrl("Login", new {returnUrl})" class="ico-login">@T("Account.Login")</a>
+            </li>
         }
         @if (Model.AllowPrivateMessages)
         {
             <li>
-                <a href="@Url.RouteUrl("PrivateMessages", new { tab = "" })" class="ico-inbox">
+                <a href="@Url.RouteUrl("PrivateMessages", new {tab = ""})" class="ico-inbox">
                     <span class="inbox-label">@T("PrivateMessages.Inbox")</span>
                     <span class="inbox-unread">@Model.UnreadPrivateMessages</span>
                 </a>
@@ -49,7 +62,7 @@
                 </a>
             </li>
         }
-        @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.HeaderLinksAfter })
+        @await Component.InvokeAsync("Widget", new {widgetZone = PublicWidgetZones.HeaderLinksAfter})
     </ul>
     @if (Model.AllowPrivateMessages && !string.IsNullOrEmpty(Model.AlertMessage))
     {
@@ -76,7 +89,17 @@
                 $('.header').on('mouseleave', '#flyout-cart', function () {
                     $('#flyout-cart').removeClass('active');
                 });
-            });
+           });
         </script>
     }
+    <script asp-location="Footer">
+                 $.ajax(
+                        {
+                        url: "/partialpayment/getcurrentbalance",
+                        method: 'GET',
+                        }).done(function (response){
+                            $("#balance").html(`Balance: ${response.balance}`);
+                        })
+        
+    </script>
 </div>

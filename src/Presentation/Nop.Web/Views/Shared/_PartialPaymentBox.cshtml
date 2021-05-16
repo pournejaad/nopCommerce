@@ -5,10 +5,23 @@
         <strong>Pay partially</strong>
     </div>
     <div class="coupon-code">
-        <input name="amount" id="amount" type="text" >
+        <input name="amount" id="amount" type="text">
         <button type="submit" name="applypartialpayment" id="applypartialpayment" class="btn">confirm</button>
     </div>
-    
+    @foreach (var message in Model.Messages)
+    {
+        <div class="@(Model.IsApplied ? "message-success" : "message-failure")">
+            @message
+        </div>
+    }
+    @if (Model.IsApplied)
+    {
+        <div class="current-code">
+            <span class="applied-discount-code">@string.Format("Applied Amount: {0}", Model.Amount)</span>
+            @*empty value (little hack for FormValueExistsAttribute)*@
+            <button type="submit" name="removepartialpayment" class="remove-discount-button"></button>
+        </div>
+    }
 </div>
 <script asp-location="Footer">
 $(document).ready(function (){

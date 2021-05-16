@@ -949,11 +949,18 @@ namespace Nop.Web.Factories
 
             //checkout attributes
             model.CheckoutAttributes = await PrepareCheckoutAttributeModelsAsync(cart);
-            
+
             var partialPaymentOptions = await _genericAttributeService
                 .GetAttributeAsync<IList<PartialPaymentOption>>(await _workContext.GetCurrentCustomerAsync(), GenericAttributeKeys.PartialPayment,
                     (await _storeContext.GetCurrentStoreAsync()).Id);
-            
+            if (partialPaymentOptions != null && partialPaymentOptions.Any())
+            {
+                model.PartialPayWithWalletBox.IsApplied = true;
+                model.PartialPayWithWalletBox.Amount =  partialPaymentOptions.Sum(ppo => ppo.AppliedValue);
+            }
+
+
+            //partial payment
 
             //cart items
             foreach (var sci in cart)
@@ -979,7 +986,7 @@ namespace Nop.Web.Factories
 
             // await _walletService.WithdrawAsync(totalAmountToWithdrawFromWallet);
             // await _genericAttributeService.SaveAttributeAsync<IList<PartialPaymentOption>>(await _workContext.GetCurrentCustomerAsync(),
-                // GenericAttributeKeys.PartialPayment, partialPaymentOptions, (await _storeContext.GetCurrentStoreAsync()).Id);
+            // GenericAttributeKeys.PartialPayment, partialPaymentOptions, (await _storeContext.GetCurrentStoreAsync()).Id);
 
             //payment methods
             //all payment methods (do not filter by country here as it could be not specified yet)
