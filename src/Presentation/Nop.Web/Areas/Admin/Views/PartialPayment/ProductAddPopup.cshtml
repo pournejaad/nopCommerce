@@ -6,7 +6,7 @@
     Layout = "_AdminPopupLayout";
 
     //page title
-    ViewBag.PageTitle = T("Admin.Promotions.Discounts.AppliedToProducts.AddNew").Text;
+    ViewBag.PageTitle = T("Admin.Promotions.PartialPayments.AppliedToProducts.AddNew").Text;
 }
 
 @if (ViewBag.RefreshPage == true)
@@ -20,7 +20,7 @@
 else
 {
     <form asp-controller="PartialPayment" asp-action="ProductAddPopup"
-          asp-route-PartialPaymentId="@Context.Request.Query["PartialPaymentId"]"
+          asp-route-partialPaymentId="@Context.Request.Query["partialPaymentId"]"
           asp-route-btnId="@Context.Request.Query["btnId"]"
           asp-route-formId="@Context.Request.Query["formId"]">
         <div class="content-header clearfix">

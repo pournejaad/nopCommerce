@@ -2669,20 +2669,22 @@ namespace Nop.Services.Catalog
 
         public async Task<IPagedList<Product>> GetProductsWithAppliedPartialPaymentAsync(int? partialPaymentId, bool showHidden, int pageIndex, int pageSize)
         {
-            var products = _productRepository.Table.Where(product => product.HasDiscountsApplied);
+            var products = _productRepository.Table.Where(product => product.HasPartialPaymentApplied);
 
             if (partialPaymentId.HasValue)
-                products = from product in products
+                products = (from product in products
                     join dpm in _partialPaymentProductMappingRepository.Table on product.Id equals dpm.ProductId
                     where dpm.PartialPaymentId == partialPaymentId.Value
-                    select product;
+                    select product);
 
             if (!showHidden)
                 products = products.Where(product => !product.Deleted);
 
             products = products.OrderBy(product => product.DisplayOrder).ThenBy(product => product.Id);
 
-            return await products.ToPagedListAsync(pageIndex, pageSize);
+            var result= await products.ToPagedListAsync(pageIndex, pageSize);
+            
+            return result;
 
         }
 

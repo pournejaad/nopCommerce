@@ -135,7 +135,7 @@ namespace Nop.Web.Areas.Admin.Controllers
                 if (!continueEditing)
                     return RedirectToAction("List");
 
-                return RedirectToAction("Edit", new { id = discount.Id });
+                return RedirectToAction("Edit", new {id = discount.Id});
             }
 
             //prepare model
@@ -206,7 +206,7 @@ namespace Nop.Web.Areas.Admin.Controllers
                 if (!continueEditing)
                     return RedirectToAction("List");
 
-                return RedirectToAction("Edit", new { id = discount.Id });
+                return RedirectToAction("Edit", new {id = discount.Id});
             }
 
             //prepare model
@@ -258,14 +258,14 @@ namespace Nop.Web.Areas.Admin.Controllers
                 throw new ArgumentNullException(nameof(systemName));
 
             var discountRequirementRule = await _discountPluginManager.LoadPluginBySystemNameAsync(systemName)
-                ?? throw new ArgumentException("Discount requirement rule could not be loaded");
+                                          ?? throw new ArgumentException("Discount requirement rule could not be loaded");
 
             var discount = await _discountService.GetDiscountByIdAsync(discountId)
-                ?? throw new ArgumentException("Discount could not be loaded");
+                           ?? throw new ArgumentException("Discount could not be loaded");
 
             var url = discountRequirementRule.GetConfigurationUrl(discount.Id, discountRequirementId);
 
-            return Json(new { url });
+            return Json(new {url});
         }
 
         public virtual async Task<IActionResult> GetDiscountRequirements(int discountId, int discountRequirementId,
@@ -352,9 +352,9 @@ namespace Nop.Web.Areas.Admin.Controllers
             var requirementGroups = (await _discountService.GetAllDiscountRequirementsAsync(discount.Id)).Where(requirement => requirement.IsGroup);
 
             var availableRequirementGroups = requirementGroups.Select(requirement =>
-                new SelectListItem { Value = requirement.Id.ToString(), Text = requirement.DiscountRequirementRuleSystemName }).ToList();
+                new SelectListItem {Value = requirement.Id.ToString(), Text = requirement.DiscountRequirementRuleSystemName}).ToList();
 
-            return Json(new { Requirements = requirements, AvailableGroups = availableRequirementGroups });
+            return Json(new {Requirements = requirements, AvailableGroups = availableRequirementGroups});
         }
 
         public virtual async Task<IActionResult> AddNewGroup(int discountId, string name)
@@ -383,16 +383,13 @@ namespace Nop.Web.Areas.Admin.Controllers
             //save new requirement group
             var discountRequirementGroup = new DiscountRequirement
             {
-                DiscountId = discount.Id,
-                IsGroup = true,
-                DiscountRequirementRuleSystemName = name,
-                InteractionType = RequirementGroupInteractionType.And
+                DiscountId = discount.Id, IsGroup = true, DiscountRequirementRuleSystemName = name, InteractionType = RequirementGroupInteractionType.And
             };
 
             await _discountService.InsertDiscountRequirementAsync(discountRequirementGroup);
 
             if (!string.IsNullOrEmpty(name))
-                return Json(new { Result = true, NewRequirementId = discountRequirementGroup.Id });
+                return Json(new {Result = true, NewRequirementId = discountRequirementGroup.Id});
 
             //set identifier as group name (if not specified)
             discountRequirementGroup.DiscountRequirementRuleSystemName = $"#{discountRequirementGroup.Id}";
@@ -400,7 +397,7 @@ namespace Nop.Web.Areas.Admin.Controllers
 
             await _discountService.UpdateDiscountAsync(discount);
 
-            return Json(new { Result = true, NewRequirementId = discountRequirementGroup.Id });
+            return Json(new {Result = true, NewRequirementId = discountRequirementGroup.Id});
         }
 
         #endregion
@@ -415,7 +412,7 @@ namespace Nop.Web.Areas.Admin.Controllers
 
             //try to get a discount with the specified id
             var discount = await _discountService.GetDiscountByIdAsync(searchModel.DiscountId)
-                ?? throw new ArgumentException("No discount found with the specified id");
+                           ?? throw new ArgumentException("No discount found with the specified id");
 
             //prepare model
             var model = await _discountModelFactory.PrepareDiscountProductListModelAsync(searchModel, discount);
@@ -430,11 +427,11 @@ namespace Nop.Web.Areas.Admin.Controllers
 
             //try to get a discount with the specified id
             var discount = await _discountService.GetDiscountByIdAsync(discountId)
-                ?? throw new ArgumentException("No discount found with the specified id", nameof(discountId));
+                           ?? throw new ArgumentException("No discount found with the specified id", nameof(discountId));
 
             //try to get a product with the specified id
             var product = await _productService.GetProductByIdAsync(productId)
-                ?? throw new ArgumentException("No product found with the specified id", nameof(productId));
+                          ?? throw new ArgumentException("No product found with the specified id", nameof(productId));
 
             //remove discount
             if (await _productService.GetDiscountAppliedToProductAsync(product.Id, discount.Id) is DiscountProductMapping discountProductMapping)
@@ -478,7 +475,7 @@ namespace Nop.Web.Areas.Admin.Controllers
 
             //try to get a discount with the specified id
             var discount = await _discountService.GetDiscountByIdAsync(model.DiscountId)
-                ?? throw new ArgumentException("No discount found with the specified id");
+                           ?? throw new ArgumentException("No discount found with the specified id");
 
             var selectedProducts = await _productService.GetProductsByIdsAsync(model.SelectedProductIds.ToArray());
             if (selectedProducts.Any())
@@ -486,7 +483,7 @@ namespace Nop.Web.Areas.Admin.Controllers
                 foreach (var product in selectedProducts)
                 {
                     if (await _productService.GetDiscountAppliedToProductAsync(product.Id, discount.Id) is null)
-                        await _productService.InsertDiscountProductMappingAsync(new DiscountProductMapping { EntityId = product.Id, DiscountId = discount.Id });
+                        await _productService.InsertDiscountProductMappingAsync(new DiscountProductMapping {EntityId = product.Id, DiscountId = discount.Id});
 
                     await _productService.UpdateProductAsync(product);
                     await _productService.UpdateHasDiscountsAppliedAsync(product);
@@ -510,7 +507,7 @@ namespace Nop.Web.Areas.Admin.Controllers
 
             //try to get a discount with the specified id
             var discount = await _discountService.GetDiscountByIdAsync(searchModel.DiscountId)
-                ?? throw new ArgumentException("No discount found with the specified id");
+                           ?? throw new ArgumentException("No discount found with the specified id");
 
             //prepare model
             var model = await _discountModelFactory.PrepareDiscountCategoryListModelAsync(searchModel, discount);
@@ -525,11 +522,11 @@ namespace Nop.Web.Areas.Admin.Controllers
 
             //try to get a discount with the specified id
             var discount = await _discountService.GetDiscountByIdAsync(discountId)
-                ?? throw new ArgumentException("No discount found with the specified id", nameof(discountId));
+                           ?? throw new ArgumentException("No discount found with the specified id", nameof(discountId));
 
             //try to get a category with the specified id
             var category = await _categoryService.GetCategoryByIdAsync(categoryId)
-                ?? throw new ArgumentException("No category found with the specified id", nameof(categoryId));
+                           ?? throw new ArgumentException("No category found with the specified id", nameof(categoryId));
 
             //remove discount
             if (await _categoryService.GetDiscountAppliedToCategoryAsync(category.Id, discount.Id) is DiscountCategoryMapping mapping)
@@ -572,7 +569,7 @@ namespace Nop.Web.Areas.Admin.Controllers
 
             //try to get a discount with the specified id
             var discount = await _discountService.GetDiscountByIdAsync(model.DiscountId)
-                ?? throw new ArgumentException("No discount found with the specified id");
+                           ?? throw new ArgumentException("No discount found with the specified id");
 
             foreach (var id in model.SelectedCategoryIds)
             {
@@ -581,7 +578,7 @@ namespace Nop.Web.Areas.Admin.Controllers
                     continue;
 
                 if (await _categoryService.GetDiscountAppliedToCategoryAsync(category.Id, discount.Id) is null)
-                    await _categoryService.InsertDiscountCategoryMappingAsync(new DiscountCategoryMapping { DiscountId = discount.Id, EntityId = category.Id });
+                    await _categoryService.InsertDiscountCategoryMappingAsync(new DiscountCategoryMapping {DiscountId = discount.Id, EntityId = category.Id});
 
                 await _categoryService.UpdateCategoryAsync(category);
             }
@@ -603,7 +600,7 @@ namespace Nop.Web.Areas.Admin.Controllers
 
             //try to get a discount with the specified id
             var discount = await _discountService.GetDiscountByIdAsync(searchModel.DiscountId)
-                ?? throw new ArgumentException("No discount found with the specified id");
+                           ?? throw new ArgumentException("No discount found with the specified id");
 
             //prepare model
             var model = await _discountModelFactory.PrepareDiscountManufacturerListModelAsync(searchModel, discount);
@@ -618,11 +615,11 @@ namespace Nop.Web.Areas.Admin.Controllers
 
             //try to get a discount with the specified id
             var discount = await _discountService.GetDiscountByIdAsync(discountId)
-                ?? throw new ArgumentException("No discount found with the specified id", nameof(discountId));
+                           ?? throw new ArgumentException("No discount found with the specified id", nameof(discountId));
 
             //try to get a manufacturer with the specified id
             var manufacturer = await _manufacturerService.GetManufacturerByIdAsync(manufacturerId)
-                ?? throw new ArgumentException("No manufacturer found with the specified id", nameof(manufacturerId));
+                               ?? throw new ArgumentException("No manufacturer found with the specified id", nameof(manufacturerId));
 
             //remove discount
             if (await _manufacturerService.GetDiscountAppliedToManufacturerAsync(manufacturer.Id, discount.Id) is DiscountManufacturerMapping discountManufacturerMapping)
@@ -665,7 +662,7 @@ namespace Nop.Web.Areas.Admin.Controllers
 
             //try to get a discount with the specified id
             var discount = await _discountService.GetDiscountByIdAsync(model.DiscountId)
-                ?? throw new ArgumentException("No discount found with the specified id");
+                           ?? throw new ArgumentException("No discount found with the specified id");
 
             foreach (var id in model.SelectedManufacturerIds)
             {
@@ -674,7 +671,7 @@ namespace Nop.Web.Areas.Admin.Controllers
                     continue;
 
                 if (await _manufacturerService.GetDiscountAppliedToManufacturerAsync(manufacturer.Id, discount.Id) is null)
-                    await _manufacturerService.InsertDiscountManufacturerMappingAsync(new DiscountManufacturerMapping { EntityId = manufacturer.Id, DiscountId = discount.Id });
+                    await _manufacturerService.InsertDiscountManufacturerMappingAsync(new DiscountManufacturerMapping {EntityId = manufacturer.Id, DiscountId = discount.Id});
 
                 await _manufacturerService.UpdateManufacturerAsync(manufacturer);
             }
@@ -696,7 +693,7 @@ namespace Nop.Web.Areas.Admin.Controllers
 
             //try to get a discount with the specified id
             var discount = await _discountService.GetDiscountByIdAsync(searchModel.DiscountId)
-                ?? throw new ArgumentException("No discount found with the specified id");
+                           ?? throw new ArgumentException("No discount found with the specified id");
 
             //prepare model
             var model = await _discountModelFactory.PrepareDiscountUsageHistoryListModelAsync(searchModel, discount);
@@ -716,7 +713,7 @@ namespace Nop.Web.Areas.Admin.Controllers
 
             //try to get a discount usage history entry with the specified id
             var discountUsageHistoryEntry = await _discountService.GetDiscountUsageHistoryByIdAsync(id)
-                ?? throw new ArgumentException("No discount usage history entry found with the specified id", nameof(id));
+                                            ?? throw new ArgumentException("No discount usage history entry found with the specified id", nameof(id));
 
             await _discountService.DeleteDiscountUsageHistoryAsync(discountUsageHistoryEntry);
 

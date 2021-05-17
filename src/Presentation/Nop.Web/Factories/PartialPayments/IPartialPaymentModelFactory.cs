@@ -93,7 +93,7 @@ namespace Nop.Web.Factories.PartialPayments
             return model;
         }
 
-        public async Task<PartialPaymentModel> PreparePartialPaymentModelAsync(PartialPaymentModel model,
+        public  Task<PartialPaymentModel> PreparePartialPaymentModelAsync(PartialPaymentModel model,
             PartialPayment partialPayment, bool showHidden = false)
         {
             if (partialPayment != null)
@@ -104,7 +104,7 @@ namespace Nop.Web.Factories.PartialPayments
                 PreparePartialPaymentProductSearchModel(model.PartialPaymentProductSearchModel, partialPayment);
             }
 
-            return model;
+            return Task.FromResult(model);
         }
 
         public async Task<AddProductToPartialPaymentSearchModel> PrepareAddProductToPartialPaymentSearchModelAsync(
@@ -145,13 +145,20 @@ namespace Nop.Web.Factories.PartialPayments
                 throw new ArgumentNullException(nameof(partialPayment));
 
             //get products with applied partial payment
-            IPagedList<Product> products = await _productService.GetProductsWithAppliedPartialPaymentAsync(
+            var products = await _productService.GetProductsWithAppliedPartialPaymentAsync(
                 partialPaymentId: partialPayment.Id,
                 showHidden: false,
                 pageIndex: searchModel.Page - 1, pageSize: searchModel.PageSize);
 
+            var pps = await _partialPaymentService.GetPartialPaymentMappingsByPartialPaymentId(partialPayment.Id);
+            var ps = (await _productService.GetProductsByIdsAsync(pps.Select(x => x.ProductId).ToArray())).Where(x => !x.Deleted)
+                .AsQueryable();
+            
+            var psPaged = await ps.ToPagedListAsync(searchModel.PartialPaymentId-1,
+                searchModel.PageSize);
+
             //prepare grid model
-            var model = new PartialPaymentProductListModel().PrepareToGrid(searchModel, products, () =>
+            var model = new PartialPaymentProductListModel().PrepareToGrid(searchModel, psPaged, () =>
             {
                 //fill in model values from the entity
                 return products.Select(product =>

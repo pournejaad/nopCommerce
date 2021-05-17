@@ -37,10 +37,10 @@
                 <nop-card asp-name="partial-payment-applied-to-products" asp-icon="fas fa-object-group" asp-title="@T("Admin.Promotions.PartialPayments.AppliedToProducts")" asp-hide-block-attribute-name="@hideAppliedToProductsBlockAttributeName" asp-hide="@hideAppliedToProductsBlock">@await Html.PartialAsync("_CreateOrUpdate.AppliedToProducts", Model)</nop-card>
                 @if (Model.Id > 0)
                 {
-                    <nop-card asp-name="partial-payment-usage-history" asp-icon="fas fa-history" asp-title="@T("Admin.Promotions.Discounts.History")" asp-hide-block-attribute-name="@hideUsageHistoryBlockAttributeName" asp-hide="@hideUsageHistoryBlock">@await Html.PartialAsync("_CreateOrUpdate.History", Model)</nop-card>
+                    <nop-card asp-name="partial-payment-usage-history" asp-icon="fas fa-history" asp-title="@T("Admin.Promotions.PartialPayment.History")" asp-hide-block-attribute-name="@hideUsageHistoryBlockAttributeName" asp-hide="@hideUsageHistoryBlock">@await Html.PartialAsync("_CreateOrUpdate.History", Model)</nop-card>
                 }
 
-                @await Component.InvokeAsync("AdminWidget", new {widgetZone = "admin_discount_details_block", additionalData = Model})
+                @await Component.InvokeAsync("AdminWidget", new {widgetZone = "admin_partial_payment_details_block", additionalData = Model})
             </nop-cards>
         </div>
     </div>

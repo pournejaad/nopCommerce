@@ -4,6 +4,12 @@ using Nop.Core.Domain.Security;
 
 namespace Nop.Services.Security
 {
+
+    public partial class StandardPermissionProvider : IPermissionProvider
+    {
+        public static readonly PermissionRecord ManagePartialPayments =
+            new PermissionRecord {Name = "Manage Partial Payments", SystemName = "ManagePartialPayments", Category = "Promo"};
+    }
     /// <summary>
     /// Standard permission provider
     /// </summary>
@@ -125,7 +131,8 @@ namespace Nop.Services.Security
                 EnableWishlist,
                 PublicStoreAllowNavigation,
                 AccessClosedStore,
-                AccessProfiling
+                AccessProfiling,
+                ManagePartialPayments
             };
         }
 
@@ -192,7 +199,8 @@ namespace Nop.Services.Security
                         EnableWishlist,
                         PublicStoreAllowNavigation,
                         AccessClosedStore,
-                        AccessProfiling
+                        AccessProfiling,
+                        ManagePartialPayments
                     }
                 ),
                 (
