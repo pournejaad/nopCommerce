@@ -1,0 +1,16 @@
+{
+  "Group": "Payments",
+  "FriendlyName": "Must be assigned to customers with CustomerClub role",
+  "SystemName": "Payments.CustomerWallet",
+  "Version": "0.0.1-beta",
+  "SupportedVersions": [
+    "4.30",
+    "4.40",
+    "4.40.3",
+    "4.50"
+  ],
+  "Author": "Ferasat System CO",
+  "DisplayOrder": 1,
+  "FileName": "Leo.Plugin.Payments.CustomerWallet.dll",
+  "Description": "This plugin adds the functionality for customers to be able to pay partially with their credit"
+}
