@@ -1,0 +1,47 @@
+﻿@model PartialPaymentModel
+
+@{
+    const string hideInfoBlockAttributeName = "PartialPaymentPage.HideInfoBlock";
+    var hideInfoBlock = await genericAttributeService.GetAttributeAsync<bool>(await workContext.GetCurrentCustomerAsync(), hideInfoBlockAttributeName);
+
+    const string hideRequirementsBlockAttributeName = "PartialPaymentPage.HideRequirementsBlock";
+    var hideRequirementsBlock = await genericAttributeService.GetAttributeAsync<bool>(
+        await workContext.GetCurrentCustomerAsync(), hideRequirementsBlockAttributeName, defaultValue: true);
+
+    const string hideUsageHistoryBlockAttributeName = "PartialPaymentPage.HideUsageHistoryBlock";
+    var hideUsageHistoryBlock = await genericAttributeService.GetAttributeAsync<bool>(
+        await workContext.GetCurrentCustomerAsync(), hideUsageHistoryBlockAttributeName, defaultValue: true);
+
+    const string hideAppliedToProductsBlockAttributeName = "PartialPaymentPage.HideAppliedToProductsBlock";
+    var hideAppliedToProductsBlock = await genericAttributeService.GetAttributeAsync<bool>(
+        await workContext.GetCurrentCustomerAsync(), hideAppliedToProductsBlockAttributeName, defaultValue: true);
+
+    const string hideAppliedToCategoriesBlockAttributeName = "PartialPaymentPage.HideAppliedToCategoriesBlock";
+    var hideAppliedToCategoriesBlock = await genericAttributeService.GetAttributeAsync<bool>(
+        await workContext.GetCurrentCustomerAsync(), hideAppliedToCategoriesBlockAttributeName, defaultValue: true);
+
+    const string hideAppliedToManufacturersBlockAttributeName = "PartialPaymentPage.HideAppliedToManufacturersBlock";
+    var hideAppliedToManufacturersBlock = await genericAttributeService.GetAttributeAsync<bool>
+        (await workContext.GetCurrentCustomerAsync(), hideAppliedToManufacturersBlockAttributeName, defaultValue: true);
+}
+
+
+<div asp-validation-summary="All"></div>
+<input asp-for="Id" type="hidden"/>
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="form-horizontal">
+            <nop-cards id="partial-payment-cards">
+                <nop-card asp-name="partial-payment-info" asp-icon="fas fa-info" asp-title="@T("Admin.Promotions.PartialPayments.Info")" asp-hide-block-attribute-name="@hideInfoBlockAttributeName" asp-hide="@hideInfoBlock">@await Html.PartialAsync("~/Plugins/Payments.CustomerWallet/Views/_CreateOrUpdate.Info.cshtml", Model)</nop-card>
+                <nop-card asp-name="partial-payment-applied-to-products" asp-icon="fas fa-object-group" asp-title="@T("Admin.Promotions.PartialPayments.AppliedToProducts")" asp-hide-block-attribute-name="@hideAppliedToProductsBlockAttributeName" asp-hide="@hideAppliedToProductsBlock">@await Html.PartialAsync("~/Plugins/Payments.CustomerWallet/Views/_CreateOrUpdate.AppliedToProducts.cshtml", Model)</nop-card>
+                @if (Model.Id > 0)
+                {
+                    <nop-card asp-name="partial-payment-usage-history" asp-icon="fas fa-history" asp-title="@T("Admin.Promotions.PartialPayment.History")" asp-hide-block-attribute-name="@hideUsageHistoryBlockAttributeName" asp-hide="@hideUsageHistoryBlock">@await Html.PartialAsync("~/Plugins/Payments.CustomerWallet/Views/_CreateOrUpdate.History.cshtml", Model)</nop-card>
+                }
+
+                @await Component.InvokeAsync("AdminWidget", new {widgetZone = "admin_partial_payment_details_block", additionalData = Model})
+            </nop-cards>
+        </div>
+    </div>
+</section>

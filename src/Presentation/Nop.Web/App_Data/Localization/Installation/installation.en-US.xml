@@ -138,4 +138,81 @@
   <LocaleResource Name="Tooltip2">
     <Value>To complete this wizard, you must know some information regarding your database server ("connection string"). Please contact your ISP if necessary. If you're installing on a local machine or server, you might need information from your System Admin.</Value>
   </LocaleResource>
+
+    <LocaleResource Name="Admin.Promotions.PartialPayment.List.SearchStartDate">
+        <Value>Start Date</Value>
+    </LocaleResource>
+
+    <LocaleResource Name="Admin.Promotions.PartialPayment.List.SearchEndDate">
+        <Value>End Date</Value>
+    </LocaleResource>
+    <LocaleResource Name="Admin.Promotions.PartialPayment.List.SearchName">
+        <Value>Name</Value>
+    </LocaleResource>
+
+    <LocaleResource Name="Admin.Promotions.PartialPayments.Fields.Name">
+        <Value>Name</Value>
+    </LocaleResource>
+
+    <LocaleResource Name="Admin.Promotions.PartialPayments.Fields.AdminComment">
+        <Value>Admin Comment</Value>
+    </LocaleResource>
+
+    <LocaleResource Name="Admin.Promotions.PartialPayments.Fields.UsePercentage">
+        <Value>Use Percentage</Value>
+    </LocaleResource>
+
+    <LocaleResource Name="Admin.Promotions.PartialPayments.Fields.PartialPaymentPercentage">
+        <Value>Percentage</Value>
+    </LocaleResource>
+
+    <LocaleResource Name="Admin.Promotions.PartialPayments.Fields.PartialPaymentAmount">
+        <Value>Amount</Value>
+    </LocaleResource>
+
+    <LocaleResource Name="Admin.Promotions.PartialPayments.Fields.MaximumPartialPaymentAmount">
+        <Value>Maxmimum Amount</Value>
+    </LocaleResource>
+
+    <LocaleResource Name="Admin.Promotions.PartialPayments.Fields.StartDate">
+        <Value>Start Date</Value>
+    </LocaleResource>
+    <LocaleResource Name="Admin.Promotions.PartialPayments.Fields.EndDate">
+        <Value>End Date</Value>
+    </LocaleResource>
+
+    <LocaleResource Name="Admin.Promotions.PartialPayments.Info">
+        <Value>Partial Payment Info</Value>
+    </LocaleResource>
+    <LocaleResource Name="Admin.Promotions.PartialPayments.AppliedToProducts">
+        <Value>Applied to products</Value>
+    </LocaleResource>
+    <LocaleResource Name="Admin.Promotions.PartialPayment.History">
+        <Value>Usage History</Value>
+    </LocaleResource>
+
+
+    <LocaleResource Name="Admin.Promotions.PartialPayments.AppliedToProducts.Product">
+        <Value>Product Name</Value>
+    </LocaleResource>
+    <LocaleResource Name="Admin.Promotions.PartialPayments.AppliedToProducts.AddNew">
+        <Value>Apply to a product</Value>
+    </LocaleResource>
+
+    <LocaleResource Name="Admin.Promotions.PartialPayments.AppliedToProducts.SaveBeforeEdit">
+        <Value>You must save to the partial payment beforing adding product</Value>
+    </LocaleResource>
+
+    <LocaleResource Name="Admin.Promotions.PartialPayments.AddNew">
+        <Value>Add New</Value>
+    </LocaleResource>
+
+    <LocaleResource Name="Admin.Promotions.PartialPayments.BackToList">
+        <Value>Back to list</Value>
+    </LocaleResource>
+
+    <LocaleResource Name="Admin.Promotions.PartialPayments.EditPartialPaymentsDetails">
+        <Value>Edit</Value>
+    </LocaleResource>
+
 </Language>
