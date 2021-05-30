@@ -11,7 +11,7 @@
 *.sln.docstates
 
 # Build results
-
+.idea/
 .vs/
 [Dd]ebug/
 [Rr]elease/
