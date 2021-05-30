@@ -1,15 +1,14 @@
-﻿using Leo.Core.Domain;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Nop.Data.Mapping;
+using Leo.Core.Domain;
 
-namespace Leo.Data
+namespace Nop.Data.Mapping.PartialPayments
 {
-    public class PartialPaymentMap : NopEntityTypeConfiguration<PartialPayment>
+    public class PartialPaymentMap : NopEntityTypeConfiguration<Leo.Core.Domain.PartialPayment>
     {
-        public override void Configure(EntityTypeBuilder<PartialPayment> builder)
+        public override void Configure(EntityTypeBuilder<Leo.Core.Domain.PartialPayment> builder)
         {
-            builder.ToTable(nameof(PartialPayment));
+            builder.ToTable(nameof(Leo.Core.Domain.PartialPayment));
             builder.HasKey(entity => entity.Id);
             builder.Property(entity => entity.Name).HasMaxLength(512).IsRequired();
             builder.Property(e => e.MaximumPartialPaymentAmount).HasColumnType("decimal(18,4)");

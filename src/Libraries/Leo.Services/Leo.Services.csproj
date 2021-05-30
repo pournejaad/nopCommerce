@@ -5,8 +5,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Nop.Services\Nop.Services.csproj"/>
-        <ProjectReference Include="..\Leo.Core\Leo.Core.csproj"/>
+        <ProjectReference Include="..\Nop.Services\Nop.Services.csproj" />
+        <ProjectReference Include="..\Leo.Core\Leo.Core.csproj" />
     </ItemGroup>
 
 </Project>

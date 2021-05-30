@@ -1,0 +1,11 @@
+{
+  "Group": "Wallets",
+  "FriendlyName": "Partial payment admin",
+  "SystemName": "Wallets.PartialPaymentAdmin",
+  "Version": "0.0.1",
+  "SupportedVersions": [ "4.20" ],
+  "Author": "nopCommerce team",
+  "DisplayOrder": 1,
+  "FileName": "Leo.Plugin.Wallets.PartialPaymentAdmin.dll",
+  "Description": "This plugin adds the functionality to define partially paying an order(for Customer Club members)"
+}

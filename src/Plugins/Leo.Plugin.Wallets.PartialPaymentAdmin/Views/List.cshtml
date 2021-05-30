@@ -1,0 +1,156 @@
+﻿
+@using Nop.Web.Framework.Models.DataTables
+@using Leo.Plugin.Wallets.PartialPaymentAdmin.Models
+@using Nop.Core
+@using Nop.Services.Common
+@model Leo.Plugin.Wallets.PartialPaymentAdmin.Models.PartialPaymentSearchModel
+@inject IGenericAttributeService genericAttributeService
+@inject IWorkContext workContext
+@{
+    Layout = "_AdminLayout";
+    ViewBag.PageTitle = T("Admin.Promotions.PartialPayments").Text;
+    Html.SetActiveMenuItemSystemName("Partial Payments");
+
+}
+@{
+    const string hideSearchBlockAttributeName = "PartialPaymentPage.HideSearchBlock";
+    var hideSearchBlock = genericAttributeService.GetAttribute<bool>(
+        workContext.CurrentCustomer, hideSearchBlockAttributeName);
+}
+
+<nop-antiforgery-token/>
+<div class="content-header clearfix">
+    <h1 class="pull-left">
+        @T("Admin.Promotions.PartialPayment")
+    </h1>
+    <div class="pull-right">
+        <a asp-action="Create" class="btn bg-blue">
+            <i class="fa fa-plus-square"></i>
+            @T("Admin.Common.AddNew")
+        </a>
+        @await Component.InvokeAsync("AdminWidget", new {widgetZone = "admin_partial_payment_list_buttons"})
+    </div>
+</div>
+
+<div class="content">
+    <div class="form-horizontal">
+        <div class="panel-group">
+            <div class="panel panel-default panel-search">
+                <div class="panel-body">
+                    <div class="row search-row @(!hideSearchBlock ? "opened" : "")" data-hideAttribute="@hideSearchBlockAttributeName">
+                        <div class="search-text">@T("Admin.Common.Search")</div>
+                        <div class="icon-search">
+                            <i class="fa fa-search" aria-hidden="true"></i>
+                        </div>
+                        <div class="icon-collapse">
+                            <i class="fa fa-angle-@(!hideSearchBlock ? "up" : "down")" aria-hidden="true"></i>
+                        </div>
+                    </div>
+
+
+                    <div class="search-body @(hideSearchBlock ? "closed" : "")">
+
+                        <div class="row">
+                            <div class="col-md-5">
+                                <div class="form-group">
+                                    <div class="col-md-4">
+                                        <nop-label asp-for="SearchStartDate"/>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <nop-editor asp-for="SearchStartDate"/>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="col-md-4">
+                                        <nop-label asp-for="SearchEndDate"/>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <nop-editor asp-for="SearchEndDate"/>
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class="col-md-7">
+                                <div class="form-group">
+                                    <div class="col-md-4">
+                                        <nop-label asp-for="SearchPartialPaymentName"/>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <nop-editor asp-for="SearchPartialPaymentName"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="text-center col-12">
+                                <button type="button" id="search-partialpayments" class="btn btn-primary btn-search">
+                                    <i class="fa fa-search"></i>
+                                    @T("Admin.Common.Search")
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    @* <nop-doc-reference asp-string-resource="@T("Admin.Documentation.Reference.PartialPayments", Docs.Discounts + Utm.OnAdmin)" /> *@
+
+                    @await Html.PartialAsync("Table", new DataTablesModel
+                    {
+                        Name = "partialpayments-grid",
+                        UrlRead = new DataUrl("List", "PartialPayment", null),
+                        SearchButtonId = "search-partialpayments",
+                        Length = Model.PageSize,
+                        LengthMenu = Model.AvailablePageSizes,
+                        Filters = new List<FilterParameter>
+                        {
+                            new FilterParameter(nameof(Model.SearchPartialPaymentName)),
+                            new FilterParameter(nameof(Model.SearchStartDate), typeof(DateTime?)),
+                            new FilterParameter(nameof(Model.SearchEndDate), typeof(DateTime?))
+                        },
+                        ColumnCollection = new List<ColumnProperty>
+                        {
+                            new ColumnProperty(nameof(PartialPaymentModel.Name))
+                            {
+                                Title = T("Admin.Promotions.PartialPayments.Fields.Name").Text,
+                                Width = "350"
+                            },
+                            new ColumnProperty(nameof(PartialPaymentModel.PartialPaymentAmount))
+                            {
+                                Title = T("Admin.Promotions.PartialPayments.Fields.PartialPaymentAmount").Text,
+                                Width = "200",
+                                Render = new RenderCustom("renderColumnPartialPayment")
+                            },
+                            new ColumnProperty(nameof(PartialPaymentModel.StartDateUtc))
+                            {
+                                Title = T("Admin.Promotions.PartialPayments.Fields.StartDate").Text,
+                                Width = "200",
+                                Render = new RenderDate()
+                            },
+                            new ColumnProperty(nameof(PartialPaymentModel.EndDateUtc))
+                            {
+                                Title = T("Admin.Promotions.PartialPayments.Fields.EndDate").Text,
+                                Width = "200",
+                                Render = new RenderDate()
+                            },
+                            new ColumnProperty(nameof(PartialPaymentModel.Id))
+                            {
+                                Title = T("Admin.Common.Edit").Text,
+                                Width = "100",
+                                ClassName = NopColumnClassDefaults.Button,
+                                Render = new RenderButtonEdit(new DataUrl("Edit"))
+                            }
+                        }
+                    })
+                    <script>
+                        function renderColumnPartialPayment(data, type, row, meta) {
+                            return (row.UsePercentage) ? row.PartialPaymentPercentage + '%' : row.PartialPaymentAmount ;
+                        }
+                    </script>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

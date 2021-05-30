@@ -1,8 +1,7 @@
 ﻿using Leo.Core.Domain;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Nop.Data.Mapping;
 
-namespace Leo.Data
+namespace Nop.Data.Mapping.PartialPayments
 {
     public class PartialPaymentProductMap : NopEntityTypeConfiguration<PartialPaymentProductMapping>
     {

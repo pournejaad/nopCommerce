@@ -20,6 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Leo.Core\Leo.Core.csproj" />
     <ProjectReference Include="..\Nop.Core\Nop.Core.csproj" />
   </ItemGroup>
 
