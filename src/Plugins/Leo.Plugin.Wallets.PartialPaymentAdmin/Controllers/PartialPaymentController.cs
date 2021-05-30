@@ -124,7 +124,7 @@ namespace Leo.Plugin.Wallets.PartialPaymentAdmin.Controllers
             //prepare model
             var model = _partialPaymentModelFactory.PreparePartialPaymentModelAsync(null, partialPayment);
 
-            return View("~/Plugins/Wallets.PartialPaymentAdmin/Views/Edit", model);
+            return View("~/Plugins/Wallets.PartialPaymentAdmin/Views/Edit.cshtml", model);
         }
 
         [HttpPost, ParameterBasedOnFormName("save-continue", "continueEditing")]
@@ -158,7 +158,7 @@ namespace Leo.Plugin.Wallets.PartialPaymentAdmin.Controllers
             model = _partialPaymentModelFactory.PreparePartialPaymentModelAsync(model, partialPayment, true);
 
             //if we got this far, something failed, redisplay form
-            return View("~/Plugins/Wallets.PartialPaymentAdmin/Views/Edit", model);
+            return View("~/Plugins/Wallets.PartialPaymentAdmin/Views/Edit.cshtml", model);
         }
 
         [HttpPost]
@@ -218,7 +218,7 @@ namespace Leo.Plugin.Wallets.PartialPaymentAdmin.Controllers
                 _partialPaymentModelFactory.PrepareAddProductToPartialPaymentSearchModelAsync(
                     new AddProductToPartialPaymentSearchModel());
 
-            return View("~/Plugins/Wallets.PartialPaymentAdmin/Views/ProductAddPopup",model);
+            return View("~/Plugins/Wallets.PartialPaymentAdmin/Views/ProductAddPopup.cshtml",model);
         }
 
         [HttpPost]
@@ -260,7 +260,7 @@ namespace Leo.Plugin.Wallets.PartialPaymentAdmin.Controllers
 
             ViewBag.RefreshPage = true;
 
-            return View("~/Plugins/Wallets.PartialPaymentAdmin/Views/ProductAddPopup",new AddProductToPartialPaymentSearchModel());
+            return View("~/Plugins/Wallets.PartialPaymentAdmin/Views/ProductAddPopup.cshtml",new AddProductToPartialPaymentSearchModel());
         }
     }
 }
