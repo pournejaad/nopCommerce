@@ -1,0 +1,11 @@
+﻿{
+  "Group": "Payment methods",
+  "FriendlyName": "Parsian",
+  "SystemName": "Payments.Parsian",
+  "Version": "1.0",
+  "SupportedVersions": [ "4.20" ],
+  "Author": "Ferasat team",
+  "DisplayOrder": 1,
+  "FileName": "Ferasat.Plugin.Payments.Parsian.dll",
+  "Description": "This plugin allows paying with Parsian Bank"
+}
