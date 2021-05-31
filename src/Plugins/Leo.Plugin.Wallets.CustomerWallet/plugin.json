@@ -1,0 +1,11 @@
+{
+  "Group": "Wallets",
+  "FriendlyName": "Customer Wallet",
+  "SystemName": "Wallets.CustomerWallet",
+  "Version": "0.0.1",
+  "SupportedVersions": [ "4.20" ],
+  "Author": "ferasat team",
+  "DisplayOrder": 1,
+  "FileName": "Leo.Plugin.Wallets.CustomerWallet.dll",
+  "Description": "This plugin allows customers to pay a portion of the product price with their wallet"
+}
