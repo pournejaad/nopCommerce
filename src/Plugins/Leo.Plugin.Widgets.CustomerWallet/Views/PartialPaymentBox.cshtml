@@ -1,0 +1,52 @@
+@model Leo.Plugin.Widgets.CustomerWallet.Models.PartialPayWithWalletBoxModel
+<form asp-controller="PartiallyPay" asp-action="Apply" method="post" id="partial-pay-with-wallet-form">
+    <div class="panel-body">
+        <div class="form-group">
+            <div class="col-md-3">
+                <nop-label asp-for="Amount"></nop-label>
+            </div>
+            <div class="col-md-9">
+                <nop-editor asp-for="Amount" asp-required="true"/>
+                <span asp-validation-for="Amount"></span>
+            </div>
+        </div>
+        <button type="submit" name="save" class="btn bg-blue">
+            <i class="fa fa-floppy-o"></i>
+            @T("Admin.Common.Save")
+        </button>
+    </div>
+
+</form>
+@*
+<div class="coupon-box">
+    <div class="title">
+        <label class="text-prompt">Pay partially</label>
+    </div>
+    <div class="coupon-code">
+        <input name="amount" id="amount" type="text">
+        <input type="submit" name="applypartialpayment" id="applypartialpayment" class="button-2" value="Pay Partially">
+    </div>
+    @foreach (var message in Model.Messages)
+    {
+        <div class="@(Model.IsApplied ? "message-success" : "message-failure")">
+            @message
+        </div>
+    }
+    @if (Model.IsApplied)
+    {
+        <div class="current-code">
+            <span class="applied-discount-code">@($"Applied Amount: {Model.Amount}")</span>
+            $1$empty value (little hack for FormValueExistsAttribute)#1#
+            <button type="submit" name="removepartialpayment" class="remove-discount-button"></button>
+        </div>
+    }
+</div>
+*@
+
+<script asp-location="Footer">
+$(document).ready(function (){
+    $('#applypartialpayment').click(function(){
+        $('#applypartialpayment').trigger('click');
+    })    
+});
+</script>

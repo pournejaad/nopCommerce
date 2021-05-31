@@ -67,7 +67,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Leo.Services", "Libraries\L
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Leo.Plugin.Wallets.PartialPaymentAdmin", "Plugins\Leo.Plugin.Wallets.PartialPaymentAdmin\Leo.Plugin.Wallets.PartialPaymentAdmin.csproj", "{F8E06E73-2A84-4383-BB1A-AE1B7B544CB8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Leo.Plugin.Wallets.CustomerWallet", "Plugins\Leo.Plugin.Wallets.CustomerWallet\Leo.Plugin.Wallets.CustomerWallet.csproj", "{A8A3F551-2864-497A-8BE3-033DAFD7C118}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Leo.Plugin.Widgets.CustomerWallet", "Plugins\Leo.Plugin.Widgets.CustomerWallet\Leo.Plugin.Widgets.CustomerWallet.csproj", "{A8A3F551-2864-497A-8BE3-033DAFD7C118}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

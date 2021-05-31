@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Nop.Web.Framework.Models;
 
-namespace Leo.Plugin.Wallets.CustomerWallet.Models
+namespace Leo.Plugin.Widgets.CustomerWallet.Models
 {
     public partial class PartialPayWithWalletBoxModel : BaseNopModel
     {
