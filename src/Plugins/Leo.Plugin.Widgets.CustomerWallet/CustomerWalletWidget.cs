@@ -10,13 +10,15 @@ namespace Leo.Plugin.Widgets.CustomerWallet
 
         public IList<string> GetWidgetZones()
         {
-            return new List<string>() {"order_summary_content_after"};
+            //order_summary_content_deals
+            //op_checkout_confirm_top
+            
+            return new List<string>() {"op_checkout_confirm_bottom"};
         }
 
         public string GetWidgetViewComponentName(string widgetZone)
         {
             return "WidgetsCustomerWallet";
         }
-        
     }
 }
